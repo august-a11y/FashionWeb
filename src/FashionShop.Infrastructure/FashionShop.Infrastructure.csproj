@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FashionShop.Application\FashionShop.Application.csproj" />
+    <ProjectReference Include="..\FashionShop.Domain\FashionShop.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
