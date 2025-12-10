@@ -40,4 +40,16 @@ namespace FashionShop.Infrastructure.Services.Models
         [JsonPropertyName("data")]
         public string Data { get; set; } = string.Empty;
     }
+
+    public class GeminiResponse
+    {
+        [JsonPropertyName("results")]
+        public List<Candidate>? Candidates { get; set; }
+    }
+
+    public class Candidate
+    {
+        [JsonPropertyName("data")]
+        public Content Content { get; set; } = new Content();
+    }
 }

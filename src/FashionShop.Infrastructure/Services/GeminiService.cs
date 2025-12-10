@@ -26,9 +26,9 @@ namespace FashionShop.Infrastructure.Services
         }
         public async Task<string> AnalyzeTryOnAsync(string userImageBase64, string clothingImageBase64, string clothingType)
         {
-            var _apiKey = _systemConfigService.GetSystemConfigValueAsync("GeminiApi");
-            var _baseUrl = _systemConfigService.GetSystemConfigValueAsync("GeminiApiUrl");
-            var prompt = _systemConfigService.GetSystemConfigValueAsync("GeminiTryOnPromptTemplate").ToString();
+            var _apiKey = await _systemConfigService.GetSystemConfigValueAsync("GeminiApiKey");
+            var _baseUrl = await _systemConfigService.GetSystemConfigValueAsync("GeminiApiUrl");
+            var prompt = await _systemConfigService.GetSystemConfigValueAsync("GeminiTryOnPromptTemplate");
 
             // --- CODE MỚI: DÙNG CLASS ---
             var requestPayload = new GeminiRequest
@@ -56,6 +56,7 @@ namespace FashionShop.Infrastructure.Services
 
             // Serialize object thành JSON
             var jsonContent = JsonSerializer.Serialize(requestPayload);
+            
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             var urlWithKey = $"{_baseUrl}?key={_apiKey}";

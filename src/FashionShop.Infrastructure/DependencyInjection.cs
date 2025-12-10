@@ -1,6 +1,8 @@
 ﻿using FashionShop.Domain.Interfaces;
 using FashionShop.Infrastructure.Repositories;
+using FashionShop.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
+using FashionShop.Application.Common.Interfaces;
 
 
 namespace FashionShop.Infrastructure
@@ -12,6 +14,7 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ISystemConfigRepository, SystemConfigsRepository>();
+            services.AddScoped<IAIGenerationService, GeminiService>();
             return services;
         }
     }

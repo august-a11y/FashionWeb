@@ -5,17 +5,7 @@
   "projects": {
     "FashionWeb.Client": {
       "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "standalone": false
-        },
-        "@schematics/angular:directive": {
-          "standalone": false
-        },
-        "@schematics/angular:pipe": {
-          "standalone": false
-        }
-      },
+      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -24,9 +14,6 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -36,7 +23,12 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+            ],
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           "configurations": {
             "production": {
@@ -72,10 +64,7 @@
               "buildTarget": "FashionWeb.Client:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {
-            "port": 59066
-          }
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
@@ -83,10 +72,6 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -96,14 +81,13 @@
             ],
             "styles": [
               "src/styles.css"
-            ],
-            "karmaConfig": "karma.conf.js"
+            ]
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": "2ca6e1ae-0d47-4faf-95b0-d0c252627031"
+    "analytics": "cc60a941-8a16-48b8-aec5-0e509c4dac04"
   }
 }
