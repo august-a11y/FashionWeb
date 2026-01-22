@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Interfaces\" />
     <Folder Include="Events\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.22" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.1" />
   </ItemGroup>
 
 </Project>

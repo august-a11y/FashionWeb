@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FashionShop.API", "src\Fash
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FashionShop.Infrastructure", "src\FashionShop.Infrastructure\FashionShop.Infrastructure.csproj", "{0ED85E1A-D461-4979-99D6-B014A2E958D0}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "FashionWeb.Client", "src\FashionWeb.Client\FashionWeb.Client.esproj", "{6A6CDF12-1923-0454-573D-29CB3DFD904C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,12 +33,6 @@ Global
 		{0ED85E1A-D461-4979-99D6-B014A2E958D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ED85E1A-D461-4979-99D6-B014A2E958D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ED85E1A-D461-4979-99D6-B014A2E958D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A6CDF12-1923-0454-573D-29CB3DFD904C}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

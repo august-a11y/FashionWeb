@@ -7,12 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Models\" />
-    <Folder Include="Common\Behaviors\" />
-    <Folder Include="TryOn\Commands\" />
+    <Compile Remove="Common\Models\**" />
+    <Compile Remove="TryOn\**" />
+    <EmbeddedResource Remove="Common\Models\**" />
+    <EmbeddedResource Remove="TryOn\**" />
+    <None Remove="Common\Models\**" />
+    <None Remove="TryOn\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Categories\Validation\" />
+    <Folder Include="Order\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="13.1.0" />
   </ItemGroup>
 

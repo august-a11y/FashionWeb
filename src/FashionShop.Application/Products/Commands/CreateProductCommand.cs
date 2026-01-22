@@ -1,48 +1,50 @@
-﻿using FashionShop.Domain.Entities;
+﻿using AutoMapper;
+using FashionShop.Application.Dtos;
+using FashionShop.Domain.Common;
+using FashionShop.Domain.Entities;
 using FashionShop.Domain.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FashionShop.Application.Products.Commands
 {
-    public record CreateProductCommand : IRequest<int>
+    public record CreateProductCommand : IRequest<Guid> 
     {
-        public string Name { get; init; } = string.Empty;
-        public string Description { get; init; } = string.Empty;
-        public decimal Price { get; init; }
-        public string ImageUrl { get; init; } = string.Empty;
-        public string Size { get; init; } = string.Empty;
-        public string Color { get; init; } = string.Empty;
-        public int StockQuantity { get; init; }
-        public int CategoryId { get; init; }
+        public required string Name { get; set; } 
+        public required string Description { get; set; }
+        public required decimal BasePrice { get; set; }
+        public required string ThumbnailUrl { get; set; } 
+        public required Guid CategoryID { get; set; }
     }
+    
 
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
+    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
     {
-        private readonly IProductRepository _productRepository;
-        public CreateProductCommandHandler(IProductRepository productRepository)
+        private readonly IRepository<Product, Guid> _repo;
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        public CreateProductCommandHandler(IRepository<Product, Guid> repo, IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository;
+            _repo = repo;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
-        public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        
+
+        public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = new Product
+            var product = new ProductDto
             {
                 Name = request.Name,
                 Description = request.Description,
-                Price = request.Price,
-                ImageUrl = request.ImageUrl,
-                Size = request.Size,
-                Color = request.Color,
-                StockQuantity = request.StockQuantity,
-                CategoryId = 1
-
+                BasePrice = request.BasePrice,
+                ThumbnailUrl = request.ThumbnailUrl,
+                CategoryID = request.CategoryID,
             };
-            return await _productRepository.AddAsync(product);
+            var entity = _mapper.Map<Product>(product);
+            _repo.Add(entity);
+            await _unitOfWork.CommitAsync(cancellationToken);
+            return entity.Id;   
         }
     }
 }
