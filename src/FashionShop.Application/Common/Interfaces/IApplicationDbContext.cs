@@ -17,7 +17,7 @@ namespace FashionShop.Application.Common.Interfaces
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<FashionShop.Domain.Entities.Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
-        public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<Variant> ProductVariants { get; set; }
         public DbSet<Address> Address { get; set; }
         public DatabaseFacade Database { get; }
         public ChangeTracker ChangeTracker { get; }

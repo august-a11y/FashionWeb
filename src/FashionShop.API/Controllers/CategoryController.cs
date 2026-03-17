@@ -1,58 +1,106 @@
-﻿using FashionShop.Application.Categories.Commands;
-using FashionShop.Application.Categories.Query;
-using FashionShop.Application.Dtos;
-using FashionShop.Application.Products.Commands;
-using FashionShop.Application.Products.Queries;
-using FashionShop.Domain.Entities;
-using MediatR;
+﻿using FashionShop.Application.CategoryService;
+using FashionShop.Application.CategoryService.DTO;
+using FashionShop.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers
 {
-    
     [ApiController]
     [Route("api/category")]
     [Authorize]
     public class CategoryController : ControllerBase
     {
+        private readonly ICategoryService _categoryService;
 
-        private readonly ISender _mediator;
-        public CategoryController(ISender mediator)
+        public CategoryController(ICategoryService categoryService)
         {
-            _mediator = mediator;
+            _categoryService = categoryService;
         }
 
-        [Authorize(Roles = "Admin")]
+
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDTO createCategoryDTO, CancellationToken cancellationToken)
         {
-            var id = await _mediator.Send(command);
-            return new OkObjectResult(id);
+            var result = await _categoryService.CreateCategoryAsync(createCategoryDTO, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to create category.";
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<CategoryDTO>.CreateSuccessResponse(result.Value, "Category created successfully."));
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("update")]
-        public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryCommand command)
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDTO updateCategoryDTO, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(command);
-            return new OkObjectResult(result);
-        }
-        [Authorize(Roles = "Admin")]
-        [HttpPost("delete")]
-        public async Task<IActionResult> DeleteCategory([FromBody] DeleteCategoryCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return new OkObjectResult(result);
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid category id.", 400));
+
+            var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryDTO, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to update category.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<CategoryDTO>.CreateSuccessResponse(result.Value, "Category updated successfully."));
         }
 
-        [Authorize(Roles = "Admin")]
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid category id.", 400));
+
+            var result = await _categoryService.DeleteCategoryAsync(id, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to delete category.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse.CreateSuccessResponse("Category deleted successfully."));
+        }
+
+
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetListCategoryQuery());
-            return new OkObjectResult(result);
+            var result = await _categoryService.GetAllCategoriesAsync(cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to retrieve categories.";
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<List<CategoryDTO>>.CreateSuccessResponse(result.Value, "Categories retrieved successfully."));
         }
 
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetCategoryById([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid category id.", 400));
+
+            var result = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Category not found.";
+                return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+            }
+
+            return Ok(ApiResponse<CategoryDTO>.CreateSuccessResponse(result.Value, "Category retrieved successfully."));
+        }
     }
 }

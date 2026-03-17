@@ -1,11 +1,6 @@
 ﻿using FashionShop.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence
 {
@@ -16,27 +11,42 @@ namespace FashionShop.Infrastructure.Persistence
             builder.ToTable("Orders");
             builder.HasKey(x => x.Id);
 
-            
-            builder.OwnsOne(o => o.ShippingAddress, a =>
-            {
-                a.Property(p => p.FullNameAddress).HasColumnName("Ship_FullName").HasMaxLength(100).IsRequired();
-                a.Property(p => p.StreetLine).HasColumnName("Ship_AddressLine").HasMaxLength(255).IsRequired();
-                a.Property(p => p.Ward).HasColumnName("Ship_Ward").HasMaxLength(100);
-                a.Property(p => p.District).HasColumnName("Ship_District").HasMaxLength(100);
-                a.Property(p => p.City).HasColumnName("Ship_City").HasMaxLength(100);
-            });
+            builder.Property(x => x.OrderCode)
+                .HasMaxLength(50)
+                .IsRequired();
 
-            
             builder.Property(x => x.SubTotal).HasPrecision(18, 2);
             builder.Property(x => x.ShippingFee).HasPrecision(18, 2);
             builder.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            builder.Property(x => x.Note).IsRequired();
+            builder.Property(x => x.PhoneNumber).IsRequired();
+            builder.Property(x => x.RowVersion).IsRowVersion();
 
-            
+            builder.HasIndex(x => x.OrderCode).IsUnique();
             builder.HasIndex(x => x.UserId);
             builder.HasIndex(x => x.Status);
 
-            
-            builder.Property(x => x.RowVersion).IsRowVersion();
+            builder.HasOne(x => x.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.OwnsOne(x => x.ShippingAddress, sa =>
+            {
+                sa.ToJson();
+            });
+
+            builder.Navigation(x => x.ShippingAddress).IsRequired();
+
+            builder.HasOne(x => x.Payment)
+                .WithOne(x => x.Order)
+                .HasForeignKey<Payment>(x => x.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(x => x.Shipment)
+                .WithOne(x => x.Order)
+                .HasForeignKey<Shipment>(x => x.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

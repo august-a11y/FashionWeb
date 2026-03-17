@@ -11,7 +11,7 @@ namespace FashionShop.Application.Common.Interfaces
 {
     public interface IJwtService
     {
-        Task<string> GenerateTokenAsync(AppUser  user , IList<string> roleOfUser);
+        string GenerateToken(IEnumerable<Claim> claims);
         string GenerateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }

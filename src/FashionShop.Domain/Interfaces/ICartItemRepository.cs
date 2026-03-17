@@ -9,6 +9,6 @@ namespace FashionShop.Domain.Interfaces
 {
     public interface ICartItemRepository : IRepository<CartItem, Guid>
     {
-        public Task<bool> ClearPurchasedItemsAsync(Guid userId, IList<Guid> variantIds, CancellationToken cancellationToken);
+        public Task<bool> ClearPurchasedItemsAsync(Guid userId, List<Guid> variantIds, CancellationToken cancellationToken);
     }
 }

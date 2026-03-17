@@ -16,11 +16,11 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
         {
         }
 
-        public async Task<bool> ClearPurchasedItemsAsync(Guid userId, IList<Guid> variantIds, CancellationToken cancellationToken)
+        public async Task<bool> ClearPurchasedItemsAsync(Guid userId, List<Guid> variantIds, CancellationToken cancellationToken)
         {
             var rowAffected = await _dbContext.CartItems
                 .Include(ci => ci.Cart)
-                .Where(ci => ci.Cart.UserId == userId && variantIds.Contains(ci.ProductVariantId))
+                .Where(ci => ci.Cart.UserId == userId && variantIds.Contains(ci.VariantId))
                 .ExecuteDeleteAsync(cancellationToken);
             return rowAffected > 0;
         }

@@ -9,7 +9,7 @@ namespace FashionShop.Domain.Interfaces
 {
     public interface ICartRepository : IRepository<Cart, Guid>
     {
-        public Task<Cart?> GetCartWithItemsByUserIdAsync(Guid userId , CancellationToken cancellationToken);
+        public Task<Cart?> GetCartWithItemsByUserIdAsync(Guid? userId , CancellationToken cancellationToken);
         
     }
 }

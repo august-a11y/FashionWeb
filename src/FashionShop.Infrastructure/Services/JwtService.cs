@@ -1,7 +1,9 @@
 ﻿using FashionShop.Application.Common.Interfaces;
 using FashionShop.Domain.Identity;
+using FashionShop.Infrastructure.ConfigOptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -17,11 +19,13 @@ namespace FashionShop.Infrastructure.Services
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
+        private readonly JwtTokenSettings _jwtTokenSettings;
 
-        public JwtService(IConfiguration configuration, UserManager<AppUser> userManager)
+        public JwtService(IConfiguration configuration, UserManager<AppUser> userManager, IOptions<JwtTokenSettings> jwtTokenSettings)
         {
             _configuration = configuration;
             _userManager = userManager;
+            _jwtTokenSettings = jwtTokenSettings.Value;
         }
 
         public string GenerateRefreshToken()
@@ -34,35 +38,19 @@ namespace FashionShop.Infrastructure.Services
             }
         }
 
-        public async Task<string> GenerateTokenAsync(AppUser user, IList<string> roleOfUser )
+        public string GenerateToken(IEnumerable<Claim> claims)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"]));
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(expires).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
-               
-            };
-            foreach (var role in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtTokenSettings.Key));
+            var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+            var tokenOptions = new JwtSecurityToken(
+                issuer: _jwtTokenSettings.Issuer,
+                audience: _jwtTokenSettings.Issuer,
                 claims: claims,
-                expires: expires,
-                signingCredentials: creds
+                expires: DateTime.UtcNow.AddHours(_jwtTokenSettings.ExpireInHours),
+                signingCredentials: signingCredentials
             );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
 
         
@@ -80,7 +68,8 @@ namespace FashionShop.Infrastructure.Services
                 ValidateLifetime = false // we want to get claims from expired tokens as well
             };
             var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
             var jwtSecurityToken = securityToken as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");

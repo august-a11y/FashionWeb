@@ -1,9 +1,6 @@
-﻿using FashionShop.Application.User.Commands;
-using FashionShop.Application.User.Queries;
-using MediatR;
+﻿using FashionShop.Application.Auth;
+using FashionShop.Application.Auth.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace FashionShop.API.Controllers
 {
@@ -11,31 +8,44 @@ namespace FashionShop.API.Controllers
     [Route("api/auth")]
     public class AuthenticationController : ControllerBase
     {
-        private readonly ISender _sender;
-        public AuthenticationController(ISender sender)
-        {
-            _sender = sender;
-        }
-        [HttpPost("login")]
-        public async Task<IActionResult<AuthenticatedResult>> Login([FromBody] LoginUserCommand query)
-        {
-            var result = await _sender.Send(query);
-            if(result == null)
-            {
-                return Unauthorized("Invalid UserName or PassWord");
-            }
-            return new OkObjectResult(result);
-        }
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] CreateUserCommand command)
-        {
-            var result = await _sender.Send(command);
-            if (!result)
-            {
-                return BadRequest("Register Fail");
-            }
-            return new OkObjectResult(result);
+        private readonly IAuthenticatedService _authenticatedService;
 
+        public AuthenticationController(IAuthenticatedService authenticatedService)
+        {
+            _authenticatedService = authenticatedService;
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO login)
+        {
+            var result = await _authenticatedService.LoginAsync(login.Username, login.Password);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Login failed.";
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<AuthenticatedResponse>.CreateSuccessResponse(result.Value, "Login successful."));
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDTO register)
+        {
+            var result = await _authenticatedService.RegisterAsync(
+                register.Username,
+                register.Email,
+                register.FirstName,
+                register.LastName,
+                register.PhoneNumber,
+                register.Password);
+
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Registration failed.";
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value, "Registration successful."));
         }
     }
 }

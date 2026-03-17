@@ -1,12 +1,6 @@
 ﻿using FashionShop.Domain.Entities;
 using FashionShop.Domain.Interfaces;
-using FashionShop.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {
@@ -20,6 +14,8 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
         {
             return await _dbContext.Orders
                 .Include(o => o.OrderItems)
+                .Include(o => o.Payment)
+                .Include(o => o.Shipment)
                 .Where(o => o.Id == id)
                 .FirstOrDefaultAsync(cancellationToken);
         }
@@ -28,6 +24,8 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
         {
             return await _dbContext.Orders
                 .Include(o => o.OrderItems)
+                .Include(o => o.Payment)
+                .Include(o => o.Shipment)
                 .Where(o => o.UserId == userId)
                 .ToListAsync(cancellationToken);
         }

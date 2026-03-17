@@ -26,6 +26,8 @@ namespace FashionShop.Domain.Interfaces
         void Remove(T Entity);
 
 
+        public void Save(T Entity);
+
 
     }
 }

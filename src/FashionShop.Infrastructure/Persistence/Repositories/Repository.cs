@@ -29,6 +29,8 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
             _dbSet.AddRange(Entities);
         }
 
+       
+
         public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
             return _dbSet.Where(predicate);
@@ -57,6 +59,11 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
         public void RemoveRange(IEnumerable<T> Entities)
         {
             _dbSet.RemoveRange(Entities);
+        }
+
+        public void Save(T Entity)
+        {
+            _dbSet.Update(Entity);
         }
     }
 }

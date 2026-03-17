@@ -20,10 +20,12 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
 
        
 
-        public async Task<Cart?> GetCartWithItemsByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        public async Task<Cart?> GetCartWithItemsByUserIdAsync(Guid? userId, CancellationToken cancellationToken)
         {
             return await _dbContext.Carts
-        .Include(c => c.CartItems) 
+        .Include(c => c.Items) 
+        .ThenInclude(i => i.Variant)
+        .ThenInclude(v => v.Product)
         .FirstOrDefaultAsync(c => c.UserId == userId, cancellationToken);
         }
     }

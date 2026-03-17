@@ -6,7 +6,7 @@ namespace FashionShop.Domain.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public ICollection<Product> Products { get; set; } = new List<Product>();
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
         public Category(string name, string description)
         {
             if(string.IsNullOrEmpty(name))

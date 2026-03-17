@@ -5,12 +5,7 @@ using FashionShop.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence
 {
@@ -22,7 +17,7 @@ namespace FashionShop.Infrastructure.Persistence
 
        
             public DbSet<Product> Products { get; set; }
-            public DbSet<ProductVariant> ProductVariants { get; set; }
+            public DbSet<Variant> ProductVariants { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<Order> Orders { get; set; }
             public DbSet<OrderItem> OrderItems { get; set; }
@@ -41,87 +36,112 @@ namespace FashionShop.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // --- CẤU HÌNH IDENTITY THỦ CÔNG ---
-
-            // 1. Cấu hình bảng User
+        
             modelBuilder.Entity<AppUser>(b =>
             {
                 b.ToTable("AppUsers");
-                // Mỗi User có nhiều UserClaims
+           
                 b.HasMany(e => e.Claims)
                     .WithOne()
                     .HasForeignKey(uc => uc.UserId)
                     .IsRequired();
 
-                // Mỗi User có nhiều UserLogins
                 b.HasMany(e => e.Logins)
                     .WithOne()
                     .HasForeignKey(ul => ul.UserId)
                     .IsRequired();
 
-                // Mỗi User có nhiều UserTokens
+      
                 b.HasMany(e => e.Tokens)
                     .WithOne()
                     .HasForeignKey(ut => ut.UserId)
                     .IsRequired();
+                b.HasIndex(u => u.Email)
+                    .IsUnique();
+                b.HasOne(e =>e.Cart)
+                    .WithOne(c => c.User)
+                    .HasForeignKey<Cart>(c => c.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                // Quan trọng: Mapping User với Role thông qua bảng trung gian UserRoles
                 b.HasMany(e => e.UserRoles)
                     .WithOne()
-                    .HasForeignKey(ur => ur.UserId) // Quan trọng: Chỉ định dùng cột UserId
+                    .HasForeignKey(ur => ur.UserId) 
                     .IsRequired()
                     .OnDelete(DeleteBehavior.NoAction);
             });
 
-            // 2. Cấu hình bảng Role
+            
             modelBuilder.Entity<AppRole>(b =>
             {
                 b.ToTable("AppRoles");
 
-                // Mỗi Role có nhiều UserRoles
+           
                 b.HasMany(e => e.UserRoles)
                     .WithOne()
-                    .HasForeignKey(ur => ur.RoleId) // Quan trọng: Chỉ định dùng cột RoleId
+                    .HasForeignKey(ur => ur.RoleId) 
                     .IsRequired()
                     .OnDelete(DeleteBehavior.NoAction);
 
-                // Mỗi Role có nhiều RoleClaims
                 b.HasMany(e => e.RoleClaims)
                     .WithOne()
                     .HasForeignKey(rc => rc.RoleId)
                     .IsRequired();
             });
-            
 
-           
-           
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Product) 
+                .WithMany()
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
-            // 3. Cấu hình các bảng còn lại và đổi tên
+        
+            modelBuilder.Entity<CartItem>()
+                .HasOne(c => c.Variant) 
+                .WithMany()
+                .HasForeignKey(c => c.VariantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Address>()
+            .HasOne(a => a.User)
+            .WithMany(u => u.Addresses)
+            .HasForeignKey(a => a.UserId);
+
+       
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
+
+
+
+
+  
             modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
             modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
             modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogins").HasKey(x => new { x.LoginProvider, x.ProviderKey });
             modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x => new { x.UserId, x.LoginProvider, x.Name });
 
-            // 4. Cấu hình bảng trung gian UserRole (Nơi hay mất liên kết nhất)
+          
             modelBuilder.Entity<IdentityUserRole<Guid>>(b =>
             {
                 b.ToTable("AppUserRoles");
-                b.HasKey(x => new { x.UserId, x.RoleId }); // Set PK
+                b.HasKey(x => new { x.UserId, x.RoleId }); 
 
-                // Thiết lập FK trỏ về AppUser (Bắt buộc)
+              
                 b.HasOne<AppUser>()
-                    .WithMany(e => e.UserRoles) // Hoặc .WithMany() nếu AppUser không có prop UserRoles
+                    .WithMany(e => e.UserRoles) 
                     .HasForeignKey(x => x.UserId)
-                    .IsRequired(); // FK Not Null
+                    .IsRequired(); 
 
-                // Thiết lập FK trỏ về AppRole (Bắt buộc)
+                
                 b.HasOne<AppRole>()
-                    .WithMany(e => e.UserRoles) // Hoặc .WithMany() nếu AppRole không có prop UserRoles
+                    .WithMany(e => e.UserRoles) 
                     .HasForeignKey(x => x.RoleId)
                     .IsRequired();
             });
 
-            // --- CẤU HÌNH GLOBAL FILTER (SOFT DELETE) ---
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(ISoftDelete).IsAssignableFrom(entityType.ClrType))
@@ -160,7 +180,7 @@ namespace FashionShop.Infrastructure.Persistence
             var param = Expression.Parameter(type, "x");
             var prop = Expression.Property(param, nameof(ISoftDelete.IsDeleted));
             var value = Expression.Constant(false);
-            var body = Expression.Equal(prop, value); // x.IsDeleted == false
+            var body = Expression.Equal(prop, value); 
             return Expression.Lambda(body, param);
         }
     }

@@ -16,7 +16,6 @@ namespace FashionShop.Infrastructure.Persistence
             builder.ToTable("OrderItems");
 
             builder.Property(x => x.UnitPrice).HasPrecision(18, 2);
-            builder.Property(x => x.TotalPrice).HasPrecision(18, 2);
 
             
             builder.HasOne(x => x.Order)

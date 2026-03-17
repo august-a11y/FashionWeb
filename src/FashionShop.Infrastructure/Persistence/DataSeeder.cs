@@ -136,12 +136,11 @@ namespace FashionShop.Infrastructure.Persistence
 
                 // 4. SEED VARIANTS (QUAN TRỌNG VỚI DB MỚI)
                 // Tạo biến thể cho Áo thun (Màu Trắng/Đen - Size M/L)
-                var shirtVariants = new List<ProductVariant>
+                var shirtVariants = new List<Variant>
                 {
-                    new ProductVariant
+                    new Variant
                     {
                         ProductId = shirtProduct.Id,
-                        Sku = "AT-BASIC-W-M",
                         Size = "M",
                         Color = "Trắng",
                         Price = 199000,
@@ -149,10 +148,9 @@ namespace FashionShop.Infrastructure.Persistence
                         ThumbnailUrl = "/images/products/ao-thun-trang.jpg",
                         CreatedAt = DateTime.UtcNow
                     },
-                    new ProductVariant
+                    new Variant
                     {
                         ProductId = shirtProduct.Id,
-                        Sku = "AT-BASIC-W-L",
                         Size = "L",
                         Color = "Trắng",
                         Price = 199000,
@@ -160,10 +158,9 @@ namespace FashionShop.Infrastructure.Persistence
                         ThumbnailUrl = "/images/products/ao-thun-trang.jpg",
                         CreatedAt = DateTime.UtcNow
                     },
-                    new ProductVariant
+                    new Variant
                     {
                         ProductId = shirtProduct.Id,
-                        Sku = "AT-BASIC-B-M",
                         Size = "M",
                         Color = "Đen",
                         Price = 209000, // Ví dụ màu đen đắt hơn chút
@@ -174,12 +171,11 @@ namespace FashionShop.Infrastructure.Persistence
                 };
 
                 // Tạo biến thể cho Quần Jeans (Size 29/30/31)
-                var jeanVariants = new List<ProductVariant>
+                var jeanVariants = new List<Variant>
                 {
-                    new ProductVariant
+                    new Variant
                     {
                         ProductId = jeanProduct.Id,
-                        Sku = "QJ-SLIM-29",
                         Size = "29",
                         Color = "Xanh Navy",
                         Price = 399000,
@@ -187,10 +183,9 @@ namespace FashionShop.Infrastructure.Persistence
                         ThumbnailUrl = "/images/products/quan-jeans-navy.jpg",
                         CreatedAt = DateTime.UtcNow
                     },
-                    new ProductVariant
+                    new Variant
                     {
                         ProductId = jeanProduct.Id,
-                        Sku = "QJ-SLIM-30",
                         Size = "30",
                         Color = "Xanh Navy",
                         Price = 399000,

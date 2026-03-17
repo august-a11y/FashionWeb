@@ -1,69 +1,105 @@
-﻿using FashionShop.Application.Dtos;
-using FashionShop.Application.Products.Commands;
-using FashionShop.Application.Products.Queries;
-using FashionShop.Domain.Entities;
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using FashionShop.Application.ProductService;
+using FashionShop.Application.ProductService.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers
 {
-    //[Authorize]
     [ApiController]
     [Route("api/products")]
-    
     public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
 
-        private readonly ISender _mediator;
-        public ProductsController(ISender mediator)
+        public ProductsController(IProductService productService)
         {
-            _mediator = mediator;
+            _productService = productService;
         }
 
         [HttpGet]
-        //[Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllProductQuery());
-            return Ok(result);
-        }
-        [Authorize(Policy = "Admin")]
-        [HttpPost("update")]
-        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            var result = await _productService.GetAllProductAsync(cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to retrieve products.";
+                return StatusCode(500, ApiResponse.CreateFailureResponse(message, 500));
+            }
+
+            return Ok(ApiResponse<IEnumerable<ProductResponseDTO>>.CreateSuccessResponse(result.Value));
         }
 
-        [Authorize(Policy = "Admin")]
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetProductById([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid product id.", 400));
+
+            var result = await _productService.GetProductByIdAsync(id, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Product not found.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value));
+        }
+
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO createProductDTO, CancellationToken cancellationToken)
         {
-            var id = await _mediator.Send(command);
-            return Ok(id);
+            try
+            {
+                var result = await _productService.CreateProductAsync(createProductDTO, cancellationToken);
+                if (result == null)
+                    return StatusCode(500, ApiResponse.CreateFailureResponse("Failed to create product.", 500));
+
+                return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result, "Product created successfully."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.CreateFailureResponse($"Failed to create product: {ex.Message}", 500));
+            }
         }
 
-        [Authorize(Policy = "Admin")]
-        [HttpPost("delete")]
-        public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductCommand command)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] UpdateDetailsProductDTO updateDetailsProductDTO, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(command);
-            return Ok(result);
-        }
-        [HttpPost("getById")]
-        public async Task<IActionResult> GetProductById([FromBody] GetProductByIdQuery query)
-        {
-            var result = await _mediator.Send(query);
-            return Ok(result);
-        }
-        [HttpPost("getList")]
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid product id.", 400));
 
-        public async Task<IActionResult> GetListProduct([FromBody] GetListProductQuery query)
+            var result = await _productService.UpdateProductAsync(id, updateDetailsProductDTO, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to update product.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value, "Product updated successfully."));
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteProduct([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(query);
-            return Ok(result);
+            if (id == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid product id.", 400));
+
+            var result = await _productService.DeleteProductAsync(id, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to delete product.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse.CreateSuccessResponse("Product deleted successfully."));
         }
     }
 }

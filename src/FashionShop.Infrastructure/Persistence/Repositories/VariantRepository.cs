@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {
-    public class VariantRepository : Repository<ProductVariant, Guid>, IVariantRepository 
+    public class VariantRepository : Repository<Variant, Guid>, IVariantRepository 
     {
         public VariantRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
@@ -27,7 +27,7 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
             return rowsAffected > 0;
         }
 
-        public async Task<IList<ProductVariant>> GetByIdWithProductAsync(IEnumerable<Guid> variantIds, CancellationToken cancellationToken)
+        public async Task<List<Variant>> GetByIdWithProductAsync(List<Guid> variantIds, CancellationToken cancellationToken)
         {
             return await _dbContext.ProductVariants
                                             .Include(v => v.Product)
@@ -35,6 +35,14 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
                                             .ToListAsync(cancellationToken);
 
                                                             
+        }
+
+        public async Task<List<Variant>> GetListByIdsWithProductAsync(List<Guid> variantIds, CancellationToken cancellationToken)
+        {
+            return await _dbContext.ProductVariants
+                                    .Include(v => v.Product)
+                                    .Where(v => variantIds.Contains(v.Id))
+                                    .ToListAsync(cancellationToken);
         }
     }
 }
