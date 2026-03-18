@@ -40,9 +40,17 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
         public async Task<List<Variant>> GetListByIdsWithProductAsync(List<Guid> variantIds, CancellationToken cancellationToken)
         {
             return await _dbContext.ProductVariants
-                                    .Include(v => v.Product)
+                                    .Include(v => v.Product.Name)
                                     .Where(v => variantIds.Contains(v.Id))
                                     .ToListAsync(cancellationToken);
+        }
+
+        public Task<List<Variant>> GetListByProductIdAsync(Guid productId, CancellationToken cancellation)
+        {
+            return _dbContext.ProductVariants
+                                    .Include(v => v.Product.Name)
+                                    .Where(v => v.ProductId == productId)
+                                    .ToListAsync(cancellation);
         }
     }
 }

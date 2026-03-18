@@ -1,4 +1,4 @@
-﻿using FashionShop.Application.CartService.DTO;
+﻿using FashionShop.Application.CartServices.DTO;
 
 namespace FashionShop.Application.Common.Interfaces
 {

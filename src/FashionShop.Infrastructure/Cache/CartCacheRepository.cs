@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.CartService.DTO;
-using FashionShop.Application.CartService.Helper;
+﻿using FashionShop.Application.CartServices.DTO;
+using FashionShop.Application.CartServices.Helper;
 using FashionShop.Application.Common.Interfaces;
 using StackExchange.Redis;
 using System.Text.Json;

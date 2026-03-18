@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.Auth;
-using FashionShop.Application.Auth.Models;
+﻿using FashionShop.Application.AuthServices;
+using FashionShop.Application.AuthServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers

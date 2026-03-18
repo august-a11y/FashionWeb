@@ -1,4 +1,4 @@
-﻿using FashionShop.Application.Auth.Models;
+﻿using FashionShop.Application.AuthServices.Models;
 using FashionShop.Domain.Identity;
 using System;
 using System.Collections.Generic;

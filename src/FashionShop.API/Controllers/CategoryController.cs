@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.CategoryService;
-using FashionShop.Application.CategoryService.DTO;
+﻿using FashionShop.Application.CategoryServices;
+using FashionShop.Application.CategoryServices.DTO;
 using FashionShop.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,6 @@
 ﻿using FashionShop.API;
 using FashionShop.API.Middleware;
+using FashionShop.Application;
 using FashionShop.Domain.Identity;
 using FashionShop.Infrastructure;
 using FashionShop.Infrastructure.ConfigOptions;
@@ -62,7 +63,23 @@ internal class Program
         builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
-
+        builder.Services.Configure<IdentityOptions>(options =>
+        {
+            // Password settings
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequiredUniqueChars = 1;
+            // Lockout settings
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+            // User settings
+            options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            options.User.RequireUniqueEmail = false;
+        });
         builder.Services.AddAuthentication(options =>
         {
             // 1. Thiết lập mặc định là JWT (Bearer)
@@ -114,6 +131,8 @@ internal class Program
         // Add controllers and other services
         builder.Services.AddControllers();
         builder.Services.AddAuthorization();
+
+        builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructureServices();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.OrderService;
-using FashionShop.Application.OrderService.DTO;
+﻿using FashionShop.Application.OrderServices;
+using FashionShop.Application.OrderServices.DTO;
 using FashionShop.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

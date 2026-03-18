@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.ProductService;
-using FashionShop.Application.ProductService.DTO;
+﻿using FashionShop.Application.ProductServices;
+using FashionShop.Application.ProductServices.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers
