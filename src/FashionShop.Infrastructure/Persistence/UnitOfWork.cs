@@ -1,10 +1,5 @@
-﻿using FashionShop.Domain.Interfaces;
+﻿using FashionShop.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence
 {

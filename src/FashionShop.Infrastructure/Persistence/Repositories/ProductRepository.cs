@@ -1,10 +1,5 @@
-﻿using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FashionShop.Application.Interfaces;
+using FashionShop.Domain.Entities;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {

@@ -25,7 +25,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Create order failed", 400));
 
-            return Ok(ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value, "Order successfully created."));
         }
 
         [HttpGet("{id:guid}")]
@@ -38,7 +38,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return NotFound(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Order not found.", 404));
 
-            return Ok(ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value, "Order successfully processed."));
         }
 
         [HttpGet("user/{userId:guid}")]
@@ -51,7 +51,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return NotFound(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Orders not found.", 404));
 
-            return Ok(ApiResponse<List<OrderDTO>>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<List<OrderDTO>>.CreateSuccessResponse(result.Value, "Order successfully processed."));
         }
 
         [HttpPost("preview")]
@@ -61,7 +61,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Preview failed.", 400));
 
-            return Ok(ApiResponse<OrderPreviewDto>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<OrderPreviewDto>.CreateSuccessResponse(result.Value, "Preview Order Successfully"));
         }
 
         [HttpPatch("{id:guid}/cancel")]
@@ -74,7 +74,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Cancel failed.", 400));
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse.CreateSuccessResponse("Cancel Order Success"));
         }
 
 
@@ -97,7 +97,7 @@ namespace FashionShop.API.Controllers
                 return HandleUpdateStatusFailure(message);
             }
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse.CreateSuccessResponse("Order status updated successfully. "));
         }
 
         private IActionResult HandleUpdateStatusFailure(string message)

@@ -1,7 +1,7 @@
 ﻿using FashionShop.Application.Common.Interfaces;
+using FashionShop.Application.Interfaces;
 using FashionShop.Application.OrderServices.DTO;
 using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.OrderServices
@@ -41,7 +41,8 @@ namespace FashionShop.Application.OrderServices
                 .Distinct()
                 .ToList();
 
-            var variants = await _variantRepository.GetByIdWithProductAsync(variantIds, cancellationToken);
+            var variants = await _variantRepository.GetListByIdsWithProductAsync(variantIds, cancellationToken);
+            var variantMap = variants.ToDictionary(v => v.Id);
 
             var newOrderItems = new List<OrderItem>();
             decimal subTotal = 0m;
@@ -51,8 +52,7 @@ namespace FashionShop.Application.OrderServices
                 if (itemRequest.Quantity <= 0)
                     return Result.Fail<OrderDTO>("Quantity must be greater than 0.");
 
-                var dbVariant = variants.FirstOrDefault(v => v.Id == itemRequest.VariantId);
-                if (dbVariant == null)
+                if (!variantMap.TryGetValue(itemRequest.VariantId, out var dbVariant))
                     return Result.Fail<OrderDTO>($"Variant '{itemRequest.VariantId}' does not exist.");
 
                 var isStockReserved = await _variantRepository.DecreaseStockAsync(
@@ -181,7 +181,8 @@ namespace FashionShop.Application.OrderServices
                 return Result.Fail<OrderPreviewDto>("Order must contain at least one item.");
 
             var variantIds = orderInput.OrderItems.Select(oi => oi.VariantId).Distinct().ToList();
-            var variants = await _variantRepository.GetByIdWithProductAsync(variantIds, cancellationToken);
+            var variants = await _variantRepository.GetListByIdsWithProductAsync(variantIds, cancellationToken);
+            var variantMap = variants.ToDictionary(v => v.Id);
 
             var previewItems = new List<OrderItemDTO>();
             decimal subtotal = 0m;
@@ -191,8 +192,7 @@ namespace FashionShop.Application.OrderServices
                 if (item.Quantity <= 0)
                     return Result.Fail<OrderPreviewDto>("Quantity must be greater than 0.");
 
-                var dbVariant = variants.FirstOrDefault(v => v.Id == item.VariantId);
-                if (dbVariant == null)
+                if (!variantMap.TryGetValue(item.VariantId, out var dbVariant))
                     return Result.Fail<OrderPreviewDto>($"Variant '{item.VariantId}' does not exist.");
 
                 if (dbVariant.StockQuantity < item.Quantity)

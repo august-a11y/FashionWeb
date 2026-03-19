@@ -1,6 +1,6 @@
+using FashionShop.Application.Interfaces;
 using FashionShop.Application.VariantServices.DTO;
 using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.VariantServices
@@ -40,7 +40,7 @@ namespace FashionShop.Application.VariantServices
             if (variantId == Guid.Empty)
                 return Result.Fail<VariantDTO>("Invalid variant id.");
 
-            var variant = await _variantRepository.GetByIdAsync(variantId, cancellationToken);
+            var variant = await _variantRepository.GetByIdWithProductAsync(variantId, cancellationToken);
             if (variant == null)
                 return Result.Fail<VariantDTO>("Variant not found.");
 

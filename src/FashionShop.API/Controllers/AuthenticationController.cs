@@ -45,7 +45,7 @@ namespace FashionShop.API.Controllers
                 return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
             }
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value, "Registration successful."));
+            return Ok(ApiResponse.CreateSuccessResponse("Registration successful."));
         }
     }
 }

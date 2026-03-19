@@ -8,7 +8,7 @@ namespace FashionShop.API.Controllers
 {
     [ApiController]
     [Route("api/category")]
-    [Authorize]
+
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

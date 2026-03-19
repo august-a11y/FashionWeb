@@ -1,10 +1,5 @@
 ﻿using FashionShop.Domain.Common;
 using FashionShop.Domain.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Domain.Entities
 {

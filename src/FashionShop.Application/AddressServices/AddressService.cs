@@ -1,7 +1,7 @@
 using FashionShop.Application.AddressServices.DTO;
 using FashionShop.Application.Common.Interfaces;
+using FashionShop.Application.Interfaces;
 using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.AddressServices

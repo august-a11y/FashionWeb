@@ -1,10 +1,6 @@
-﻿using FashionShop.Domain.Common;
-using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
-using FashionShop.Infrastructure.Persistence;
+﻿using FashionShop.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Threading;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {

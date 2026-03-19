@@ -31,52 +31,57 @@ namespace FashionShop.Application.AuthServices
         public async Task<Result<AuthenticatedResponse>> LoginAsync(string username, string password)
         {
             var user = await _userManager.FindByNameAsync(username);
-            if (user == null )
+            if (user == null)
             {
                 return Result.Fail("Invalid username or password.");
             }
+
             if (!user.IsActive)
             {
                 return Result.Fail("User account is inactive.");
             }
-            if (user.LockoutEnabled)
+
+            var result = await _signInManager.PasswordSignInAsync(
+                user,
+                password,
+                isPersistent: false,
+                lockoutOnFailure: true);
+
+            if (result.IsLockedOut)
             {
-                return Result.Fail("User account is locked.");
+                var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+                var remaining = lockoutEnd.HasValue
+                    ? lockoutEnd.Value - DateTimeOffset.UtcNow
+                    : TimeSpan.Zero;
+
+                return Result.Fail($"User account is locked. Try again in {Math.Max(0, remaining.Minutes)} minutes and {Math.Max(0, remaining.Seconds)} seconds.");
             }
-            var result = await _signInManager.PasswordSignInAsync(user, password, false, true);
+
             if (!result.Succeeded)
             {
                 return Result.Fail("Invalid username or password.");
             }
-            if(result.IsLockedOut)
-            {
-                var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
 
-                var remainingLockoutTime = lockoutEnd.HasValue ? lockoutEnd.Value - DateTimeOffset.UtcNow : TimeSpan.Zero;
-                return Result.Fail("User account is locked.");
-            }
-
-            //Author
             var roles = await _userManager.GetRolesAsync(user);
-            var permissions = await this.GetPermissionsByUserIdAsync(user.Id.ToString());
+            var permissions = await GetPermissionsByUserIdAsync(user.Id.ToString());
+
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(UserClaims.FirstName, user.FirstName),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                new Claim(UserClaims.FirstName, user.FirstName ?? string.Empty),
                 new Claim(UserClaims.Id, user.Id.ToString()),
                 new Claim(UserClaims.Roles, string.Join(";", roles)),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(UserClaims.Permissions, JsonSerializer.Serialize(permissions)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var token =  _jwtService.GenerateToken(claims);
+            var token = _jwtService.GenerateToken(claims);
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
             await _userManager.UpdateAsync(user);
 
             return new AuthenticatedResponse
@@ -84,7 +89,6 @@ namespace FashionShop.Application.AuthServices
                 AccessToken = token,
                 RefreshToken = refreshToken
             };
-            
         }
 
         public async Task<Result<bool>> RegisterAsync(string username, string email, string firstName, string lastName, string phoneNumber, string password)

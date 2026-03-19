@@ -22,7 +22,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return StatusCode(StatusCodes.Status404NotFound, ApiResponse.CreateFailureResponse("Not Found", 404));
 
-            return Ok(ApiResponse<CartDTO>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<CartDTO>.CreateSuccessResponse(result.Value, "Get Products Successfully"));
         }
 
         [HttpPost("add")]
@@ -32,7 +32,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Add failed", 400));
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse.CreateSuccessResponse("Item added to cart successfully."));
         }
 
         [HttpDelete("remove")]
@@ -42,7 +42,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Remove failed", 400));
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse.CreateSuccessResponse("Item removed from cart successfully."));
         }
 
         [HttpPatch("decrease")]
@@ -52,7 +52,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Decrease failed", 400));
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse.CreateSuccessResponse("Decrease Quantity Successfully"));
         }
     }
 }

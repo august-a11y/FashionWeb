@@ -1,12 +1,6 @@
-﻿using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
-using FashionShop.Infrastructure.Persistence;
+﻿using FashionShop.Application.Interfaces;
+using FashionShop.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {
@@ -27,30 +21,27 @@ namespace FashionShop.Infrastructure.Persistence.Repositories
             return rowsAffected > 0;
         }
 
-        public async Task<List<Variant>> GetByIdWithProductAsync(List<Guid> variantIds, CancellationToken cancellationToken)
+        public async Task<Variant> GetByIdWithProductAsync(Guid variantId, CancellationToken cancellationToken)
         {
             return await _dbContext.ProductVariants
-                                            .Include(v => v.Product)
-                                            .Where(v => variantIds.Contains(v.Id))
-                                            .ToListAsync(cancellationToken);
-
-                                                            
+                .Include(v => v.Product)
+                .FirstOrDefaultAsync(v => v.Id == variantId, cancellationToken);
         }
 
         public async Task<List<Variant>> GetListByIdsWithProductAsync(List<Guid> variantIds, CancellationToken cancellationToken)
         {
             return await _dbContext.ProductVariants
-                                    .Include(v => v.Product.Name)
-                                    .Where(v => variantIds.Contains(v.Id))
-                                    .ToListAsync(cancellationToken);
+                .Include(v => v.Product)
+                .Where(v => variantIds.Contains(v.Id))
+                .ToListAsync(cancellationToken);
         }
 
         public Task<List<Variant>> GetListByProductIdAsync(Guid productId, CancellationToken cancellation)
         {
             return _dbContext.ProductVariants
-                                    .Include(v => v.Product.Name)
-                                    .Where(v => v.ProductId == productId)
-                                    .ToListAsync(cancellation);
+                .Include(v => v.Product)
+                .Where(v => v.ProductId == productId)
+                .ToListAsync(cancellation);
         }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using FashionShop.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 
 namespace FashionShop.Domain.Identity
 {
     public class AppUser : IdentityUser<Guid>
     {
-        [Required]
+
         public string FirstName { get; set; } = string.Empty;   
-        [Required]
+
         public string LastName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

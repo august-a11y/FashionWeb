@@ -1,6 +1,6 @@
 ﻿using FashionShop.Application.AuthServices;
 using FashionShop.Application.Common.Interfaces;
-using FashionShop.Domain.Interfaces;
+using FashionShop.Application.Interfaces;
 using FashionShop.Infrastructure.Cache;
 using FashionShop.Infrastructure.Caching;
 using FashionShop.Infrastructure.Persistence;

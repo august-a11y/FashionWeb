@@ -1,6 +1,6 @@
-﻿using FashionShop.Application.ProductServices.DTO;
+﻿using FashionShop.Application.Interfaces;
+using FashionShop.Application.ProductServices.DTO;
 using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.ProductServices
@@ -107,6 +107,7 @@ namespace FashionShop.Application.ProductServices
             else
             {
                 product.UpdateDetails(productDto.Name, productDto.Description, productDto.ThumbnailUrl);
+                product.ChangePrice(productDto.Price);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 return Result.Ok(new ProductResponseDTO
                 {

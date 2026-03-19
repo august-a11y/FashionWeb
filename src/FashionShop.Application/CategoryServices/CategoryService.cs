@@ -1,5 +1,5 @@
 ﻿using FashionShop.Application.CategoryServices.DTO;
-using FashionShop.Domain.Interfaces;
+using FashionShop.Application.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.CategoryServices

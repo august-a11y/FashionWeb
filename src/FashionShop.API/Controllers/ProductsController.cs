@@ -25,7 +25,7 @@ namespace FashionShop.API.Controllers
                 return StatusCode(500, ApiResponse.CreateFailureResponse(message, 500));
             }
 
-            return Ok(ApiResponse<IEnumerable<ProductResponseDTO>>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<IEnumerable<ProductResponseDTO>>.CreateSuccessResponse(result.Value, "Get Products Successfully"));
         }
 
         [HttpGet("{id:guid}")]
@@ -44,7 +44,7 @@ namespace FashionShop.API.Controllers
                 return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
             }
 
-            return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value));
+            return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value, "Get Products Successfully"));
         }
 
         [HttpPost("create")]

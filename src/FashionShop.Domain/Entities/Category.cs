@@ -16,7 +16,7 @@ namespace FashionShop.Domain.Entities
             Name = name;
             Description = description;
         }
-        public void UpdateDetails(string Name, string Description)
+        public void UpdateDetails(string? Name, string? Description)
         {
             this.Name = !string.IsNullOrEmpty(Name) ? Name : this.Name;
             this.Description = !string.IsNullOrEmpty(Description) ? Description : this.Description;

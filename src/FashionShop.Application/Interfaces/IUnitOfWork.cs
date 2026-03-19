@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FashionShop.Domain.Interfaces
+﻿namespace FashionShop.Application.Interfaces
 {
     public interface IUnitOfWork
     {

@@ -1,7 +1,7 @@
 ﻿using FashionShop.Application.CartServices.DTO;
 using FashionShop.Application.CartServices.Helper;
 using FashionShop.Application.Common.Interfaces;
-using FashionShop.Domain.Interfaces;
+using FashionShop.Application.Interfaces;
 using FluentResults;
 
 namespace FashionShop.Application.CartServices
@@ -31,11 +31,9 @@ namespace FashionShop.Application.CartServices
             if (cartItemCreateDTO.Quantity <= 0)
                 return Result.Fail("Quantity must be greater than 0.");
 
-            var variants = await _variantRepo.GetByIdWithProductAsync(
-                new List<Guid> { cartItemCreateDTO.VariantId },
+            var variant = await _variantRepo.GetByIdWithProductAsync(cartItemCreateDTO.VariantId,
                 cancellationToken);
 
-            var variant = variants.FirstOrDefault();
             if (variant == null)
                 return Result.Fail("Variant not found");
 

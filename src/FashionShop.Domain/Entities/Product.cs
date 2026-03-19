@@ -22,17 +22,20 @@ namespace FashionShop.Domain.Entities
         //    CategoryId = categoryId;
         //}
 
-        public void UpdateDetails(string name, string desc, string img)
+        public void UpdateDetails(string? name, string? desc, string? img)
         {
             Name = !string.IsNullOrEmpty(name) ? name : Name;
             Description = !string.IsNullOrEmpty(desc) ? desc : Description;
             ThumbnailUrl = !string.IsNullOrEmpty(img) ? img : ThumbnailUrl;
         }
 
-        public void ChangePrice(decimal newPrice)
+        public void ChangePrice(decimal? newPrice)
         {
             if (newPrice < 0) throw new ArgumentException("Giá không hợp lệ");
-            BasePrice = newPrice;
+            if (newPrice.HasValue)
+            {
+                BasePrice = newPrice;
+            }
         }
 
 

@@ -7,7 +7,7 @@ namespace FashionShop.API.Controllers
 {
     [ApiController]
     [Route("api/address")]
-    [Authorize]
+
     public class AddressController : ControllerBase
     {
         private readonly IAddressService _addressService;

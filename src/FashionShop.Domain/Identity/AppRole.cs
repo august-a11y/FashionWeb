@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 
 namespace FashionShop.Domain.Identity
 {
     public class AppRole : IdentityRole<Guid>
     {
-        [Required]
-        [MaxLength(256)]
         public string DisplayName { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; } 
         public DateTime? UpdatedAt { get; set; }

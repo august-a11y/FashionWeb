@@ -7,7 +7,7 @@ namespace FashionShop.API.Controllers
 {
     [ApiController]
     [Route("api/user")]
-    [Authorize]
+
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -44,7 +44,7 @@ namespace FashionShop.API.Controllers
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Change password failed.", 400));
 
-            return Ok(ApiResponse<bool>.CreateSuccessResponse(result.Value, "Password changed successfully."));
+            return Ok(ApiResponse.CreateSuccessResponse("Password changed successfully."));
         }
     }
 }

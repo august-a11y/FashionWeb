@@ -1,6 +1,6 @@
-﻿using FashionShop.Application.ProductServices.DTO;
+﻿using FashionShop.Application.Interfaces;
+using FashionShop.Application.ProductServices.DTO;
 using FashionShop.Domain.Entities;
-using FashionShop.Domain.Interfaces;
 using FluentValidation;
 
 namespace FashionShop.Application.ProductServices.Validation
