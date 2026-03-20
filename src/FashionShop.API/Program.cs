@@ -20,128 +20,121 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Missing configuration 'ConnectionStrings:DefaultConnection'.");
+        }
+
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+        if (string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            throw new InvalidOperationException("Missing configuration 'ConnectionStrings:Redis'.");
+        }
+
         var jwtSettings = builder.Configuration.GetSection("Jwt");
-        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
+        var jwtKey = jwtSettings["Key"];
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new InvalidOperationException("Missing configuration 'Jwt:Key'. Set it in appsettings or environment variable 'Jwt__Key'.");
+        }
 
+        var jwtIssuer = jwtSettings["Issuer"];
+        if (string.IsNullOrWhiteSpace(jwtIssuer))
+        {
+            throw new InvalidOperationException("Missing configuration 'Jwt:Issuer'.");
+        }
 
-        // Add services to the container.
+        var jwtAudience = jwtSettings["Audience"];
+        if (string.IsNullOrWhiteSpace(jwtAudience))
+        {
+            throw new InvalidOperationException("Missing configuration 'Jwt:Audience'.");
+        }
 
-        //Config Redis
-        var RedisConnectionString = builder.Configuration.GetConnectionString("Redis");
-        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        var key = Encoding.UTF8.GetBytes(jwtKey);
 
-            ConnectionMultiplexer.Connect(RedisConnectionString!)
-        );
+        // Config Redis
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+            ConnectionMultiplexer.Connect(redisConnectionString));
 
-
-
-
-        //Config CORS 
+        // Config CORS
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("CorsPolicy", policy =>
             {
-                policy.WithOrigins("http://localhost:4200", "http://localhost:4200")
+                policy.WithOrigins("http://localhost:4200")
                       .AllowAnyHeader()
                       .AllowAnyMethod();
             });
         });
 
-        //Congig DbContext with SQL Server 
+        // Config DbContext with SQL Server
         builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(connectionString,
-                        b => b.MigrationsAssembly("FashionShop.API"));
-
-
-
-
+            options.UseSqlServer(connectionString, b => b.MigrationsAssembly("FashionShop.API"));
         });
 
         // Configure Identity
         builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
         builder.Services.Configure<IdentityOptions>(options =>
         {
-            // Password settings
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 6;
             options.Password.RequiredUniqueChars = 1;
-            // Lockout settings
+
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
-            // User settings
+
             options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
             options.User.RequireUniqueEmail = false;
         });
+
         builder.Services.AddAuthentication(options =>
         {
-            // 1. Thiết lập mặc định là JWT (Bearer)
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
-            // Cấu hình validate token của bạn ở đây (giữ nguyên code cũ của bạn)
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters()
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-
-                ValidIssuer = jwtSettings["Issuer"],
-                ValidAudience = jwtSettings["Audience"],
+                ValidIssuer = jwtIssuer,
+                ValidAudience = jwtAudience,
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
         });
+
         builder.Services.Configure<JwtTokenSettings>(jwtSettings);
-        builder.Services.Configure<IdentityOptions>(options =>
+
+        builder.Services.AddAuthorization(options =>
         {
-            // Password settings
-            options.Password.RequireDigit = true;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequireUppercase = true;
-            options.Password.RequiredLength = 6;
-            options.Password.RequiredUniqueChars = 1;
-            // Lockout settings
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-            options.Lockout.MaxFailedAccessAttempts = 5;
-            options.Lockout.AllowedForNewUsers = true;
-            // User settings
-            options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-            options.User.RequireUniqueEmail = false;
+            options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("Custommer", policy => policy.RequireRole("Custommer"));
         });
 
-        builder.Services.AddAuthorization(builder =>
-        {
-            builder.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-            builder.AddPolicy("Custommer", policy => policy.RequireRole("Custommer"));
-        });
-        // Add controllers and other services
         builder.Services.AddControllers();
-        builder.Services.AddAuthorization();
-
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructureServices();
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -158,12 +151,9 @@ internal class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-
-
-
         app.MapControllers();
 
-        //Seeding default data
+        // Seeding default data + migration
         app.MigrationDatabase();
 
         app.Run();
