@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace FashionShop.API.Controllers
 {
     [ApiController]
-    [Route("api/user")]
-
+    [Route("api/users")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -37,7 +37,7 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse<UserProfileDTO>.CreateSuccessResponse(result.Value, "Profile updated successfully."));
         }
 
-        [HttpPatch("me/change-password")]
+        [HttpPatch("me/password")]
         public async Task<IActionResult> ChangeMyPassword([FromBody] ChangePasswordDTO dto, CancellationToken cancellationToken)
         {
             var result = await _userService.ChangeMyPasswordAsync(dto, cancellationToken);

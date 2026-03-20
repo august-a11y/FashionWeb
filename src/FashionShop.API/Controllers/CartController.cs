@@ -1,11 +1,13 @@
 ﻿using FashionShop.Application.CartServices;
 using FashionShop.Application.CartServices.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers
 {
     [ApiController]
-    [Route("api/cart")]
+    [Route("api/carts")]
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -15,7 +17,7 @@ namespace FashionShop.API.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("get")]
+        [HttpGet("me")]
         public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
         {
             var result = await _cartService.GetCartAsync(cancellationToken);
@@ -25,7 +27,7 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse<CartDTO>.CreateSuccessResponse(result.Value, "Get Products Successfully"));
         }
 
-        [HttpPost("add")]
+        [HttpPost("me/items")]
         public async Task<IActionResult> AddToCart([FromBody] CartItemCreateDTO dto, CancellationToken cancellationToken)
         {
             var result = await _cartService.AddItemToCartAsync(dto, cancellationToken);
@@ -35,7 +37,7 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse.CreateSuccessResponse("Item added to cart successfully."));
         }
 
-        [HttpDelete("remove")]
+        [HttpDelete("me/items")]
         public async Task<IActionResult> RemoveFromCart([FromBody] CartItemRemoveDTO dto, CancellationToken cancellationToken)
         {
             var result = await _cartService.RemoveItemFromCartAsync(dto.ProductId, dto.VariantId, cancellationToken);
@@ -45,7 +47,7 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse.CreateSuccessResponse("Item removed from cart successfully."));
         }
 
-        [HttpPatch("decrease")]
+        [HttpPatch("me/items")]
         public async Task<IActionResult> DecreaseQuantity([FromBody] CartItemUpdateDTO dto, CancellationToken cancellationToken)
         {
             var result = await _cartService.DecreaseQuantityItemFromCartAsync(dto, cancellationToken);

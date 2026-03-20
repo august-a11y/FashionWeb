@@ -1,4 +1,5 @@
-﻿using FashionShop.Application.ProductServices;
+﻿using FashionShop.Application.CategoryServices.DTO;
+using FashionShop.Application.ProductServices;
 using FashionShop.Application.ProductServices.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,7 +48,7 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value, "Get Products Successfully"));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO createProductDTO, CancellationToken cancellationToken)
         {
             try
@@ -56,7 +57,7 @@ namespace FashionShop.API.Controllers
                 if (result == null)
                     return StatusCode(500, ApiResponse.CreateFailureResponse("Failed to create product.", 500));
 
-                return Ok(ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result, "Product created successfully."));
+                return StatusCode(StatusCodes.Status201Created, ApiResponse<ProductResponseDTO>.CreateSuccessResponse(result.Value, "Category created successfully."));
             }
             catch (Exception ex)
             {

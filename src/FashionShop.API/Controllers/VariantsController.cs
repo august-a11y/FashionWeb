@@ -15,7 +15,7 @@ namespace FashionShop.API.Controllers
             _variantService = variantService;
         }
 
-        [HttpGet("product/{productId:guid}")]
+        [HttpGet("~/api/products/{productId:guid}/variants")]
         public async Task<IActionResult> GetByProductId([FromRoute] Guid productId, CancellationToken cancellationToken)
         {
             var result = await _variantService.GetVariantsByProductIdAsync(productId, cancellationToken);
@@ -41,14 +41,14 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse<VariantDTO>.CreateSuccessResponse(result.Value));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateVariantDTO createVariantDto, CancellationToken cancellationToken)
         {
             var result = await _variantService.CreateVariantAsync(createVariantDto, cancellationToken);
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Failed to create variant.", 400));
 
-            return Ok(ApiResponse<VariantDTO>.CreateSuccessResponse(result.Value, "Variant created successfully."));
+            return StatusCode(StatusCodes.Status201Created, ApiResponse<VariantDTO>.CreateSuccessResponse(result.Value, "Variant created successfully."));
         }
 
         [HttpPut("{id:guid}")]

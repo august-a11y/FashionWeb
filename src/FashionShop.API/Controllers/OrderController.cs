@@ -18,14 +18,14 @@ namespace FashionShop.API.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO createOrderDTO, CancellationToken cancellationToken)
         {
             var result = await _orderService.CreateOrderAsync(createOrderDTO, cancellationToken);
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Create order failed", 400));
 
-            return Ok(ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value, "Order successfully created."));
+            return StatusCode(StatusCodes.Status201Created, ApiResponse<OrderDTO>.CreateSuccessResponse(result.Value, "Order successfully created."));
         }
 
         [HttpGet("{id:guid}")]

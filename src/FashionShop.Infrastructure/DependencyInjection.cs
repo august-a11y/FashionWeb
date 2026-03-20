@@ -7,6 +7,7 @@ using FashionShop.Infrastructure.Persistence;
 using FashionShop.Infrastructure.Persistence.Repositories;
 using FashionShop.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
+using FashionShop.Infrastructure.Identity;
 
 namespace FashionShop.Infrastructure
 {
@@ -18,6 +19,7 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IAuthenticatedService, AuthenticatedService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IRedisCache, RedisCache>();
+            services.AddScoped<IIdentityService, IdentityService>();
 
             // Repositories
             services.AddScoped<IOrderRepository, OrderRepository>();

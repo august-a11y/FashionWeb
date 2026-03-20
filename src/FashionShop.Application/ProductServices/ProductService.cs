@@ -14,7 +14,7 @@ namespace FashionShop.Application.ProductServices
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<ProductResponseDTO> CreateProductAsync(CreateProductDTO productDto, CancellationToken cancellationToken)
+        public async Task<Result<ProductResponseDTO>> CreateProductAsync(CreateProductDTO productDto, CancellationToken cancellationToken)
         {
             var product = new Product
             {
@@ -26,14 +26,14 @@ namespace FashionShop.Application.ProductServices
             };
             _productRepository.Add(product);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return new ProductResponseDTO
+            return Result.Ok( new ProductResponseDTO
             {
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.BasePrice ?? 0,
                 ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId
-            };
+            });
         }
 
         public async Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken)

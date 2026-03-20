@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FashionShop.API.Controllers
 {
     [ApiController]
-    [Route("api/category")]
+    [Route("api/categories")]
 
     public class CategoryController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace FashionShop.API.Controllers
         }
 
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDTO createCategoryDTO, CancellationToken cancellationToken)
         {
             var result = await _categoryService.CreateCategoryAsync(createCategoryDTO, cancellationToken);
@@ -29,7 +29,7 @@ namespace FashionShop.API.Controllers
                 return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
             }
 
-            return Ok(ApiResponse<CategoryDTO>.CreateSuccessResponse(result.Value, "Category created successfully."));
+            return StatusCode(StatusCodes.Status201Created, ApiResponse<CategoryDTO>.CreateSuccessResponse(result.Value, "Category created successfully."));
         }
 
 

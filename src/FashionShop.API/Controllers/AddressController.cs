@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace FashionShop.API.Controllers
 {
     [ApiController]
-    [Route("api/address")]
-
+    [Route("api/addresses")]
+    [Authorize]
     public class AddressController : ControllerBase
     {
         private readonly IAddressService _addressService;
@@ -43,14 +43,14 @@ namespace FashionShop.API.Controllers
             return Ok(ApiResponse<AddressDTO>.CreateSuccessResponse(result.Value));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateMyAddress([FromBody] CreateAddressDTO dto, CancellationToken cancellationToken)
         {
             var result = await _addressService.CreateMyAddressAsync(dto, cancellationToken);
             if (result.IsFailed)
                 return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Failed to create address.", 400));
 
-            return Ok(ApiResponse<AddressDTO>.CreateSuccessResponse(result.Value, "Address created successfully."));
+            return StatusCode(StatusCodes.Status201Created, ApiResponse<AddressDTO>.CreateSuccessResponse(result.Value, "Address created successfully."));
         }
 
         [HttpPut("{id:guid}")]
