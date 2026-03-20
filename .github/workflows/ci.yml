@@ -11,7 +11,7 @@ permissions:
   packages: read
 
 env:
-  IMAGE_NAME: augusta11y/fashionweb-api
+  IMAGE_NAME: vyle1008/fashionweb-api
 
 concurrency:
   group: ci-${{ github.ref }}
