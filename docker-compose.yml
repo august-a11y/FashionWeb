@@ -1,25 +1,15 @@
 services:
-  fashionshop-api:
-    build:
-      context: .
-      dockerfile: src/FashionShop.API/Dockerfile
-    container_name: fashionshop-api
+  api:
+    image: vyle1008/fashionweb-api:latest
+    container_name: fashionweb-api
     ports:
       - "8080:8080"
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FashionShopDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-      ConnectionStrings__Redis: "redis:6379"
-      Jwt__Key: "3A534045-9B39-435C-91E1-008B117B3CA4"
-      Jwt__Issuer: "http://localhost:8080"
-      Jwt__Audience: "http://localhost:8080"
-      Jwt__ExpireMinutes: "60"
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__DefaultConnection: "Server=sql,1433;Database=FashionWebDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False"
     depends_on:
-      sqlserver:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: on-failure
+      - sql
+    pull_policy: always
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
