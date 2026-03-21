@@ -8,7 +8,8 @@ services:
       ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__DefaultConnection: "Server=sql,1433;Database=FashionWebDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False"
     depends_on:
-      - sql
+      - sqlserver
+      - redis
     pull_policy: always
 
   sqlserver:
