@@ -17,7 +17,6 @@ services:
       redis:
         condition: service_healthy
     pull_policy: always
-
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: fashionshop-sql
