@@ -3,14 +3,14 @@ services:
     image: vyle1008/fashionweb-api:latest
     container_name: fashionweb-api
     ports:
-      - "8080:8080"
+      - "7239:7239"
     environment:
-      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_URLS: "http://+:7239"
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FashionWebDb;User Id=sa;Password=${SA_PASSWORD:-YourStrong!Passw0rd};TrustServerCertificate=True;Encrypt=False"
       ConnectionStrings__Redis: "redis:6379"
       Jwt__Key: "3A534045-9B39-435C-91E1-008B117B3CA4"
-      Jwt__Issuer: "http://localhost:8080"
-      Jwt__Audience: "http://localhost:8080"
+      Jwt__Issuer: "http://localhost:7239"
+      Jwt__Audience: "http://localhost:7239"
     depends_on:
       sqlserver:
         condition: service_healthy
