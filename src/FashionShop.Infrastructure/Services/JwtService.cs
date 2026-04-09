@@ -45,7 +45,7 @@ namespace FashionShop.Infrastructure.Services
 
             var tokenOptions = new JwtSecurityToken(
                 issuer: _jwtTokenSettings.Issuer,
-                audience: _jwtTokenSettings.Issuer,
+                audience: _jwtTokenSettings.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(_jwtTokenSettings.ExpireInHours),
                 signingCredentials: signingCredentials

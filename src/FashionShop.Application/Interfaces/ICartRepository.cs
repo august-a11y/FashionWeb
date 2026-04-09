@@ -2,7 +2,7 @@
 
 namespace FashionShop.Application.Interfaces
 {
-    public interface ICartRepository : IRepository<Cart, Guid>
+    public interface ICartRepository : IRepository<Cart>
     {
         public Task<Cart?> GetCartWithItemsByUserIdAsync(Guid? userId , CancellationToken cancellationToken);
         

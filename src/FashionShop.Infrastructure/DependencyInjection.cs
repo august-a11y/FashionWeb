@@ -1,5 +1,4 @@
-﻿using FashionShop.Application.AuthServices;
-using FashionShop.Application.Common.Interfaces;
+﻿using FashionShop.Application.Common.Interfaces;
 using FashionShop.Application.Interfaces;
 using FashionShop.Infrastructure.Cache;
 using FashionShop.Infrastructure.Caching;
@@ -8,6 +7,7 @@ using FashionShop.Infrastructure.Persistence.Repositories;
 using FashionShop.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using FashionShop.Infrastructure.Identity;
+using FashionShop.Application.Services.AuthServices;
 
 namespace FashionShop.Infrastructure
 {
@@ -22,13 +22,12 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IIdentityService, IdentityService>();
 
             // Repositories
-            services.AddScoped<IOrderRepository, OrderRepository>();
+
             services.AddScoped<ICartItemRepository, CartItemRepository>();
             services.AddScoped<IVariantRepository, VariantRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartCacheRepository, CartCacheRepository>();
-            services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             // Db + context
             services.AddScoped(typeof(IApplicationDbContext), typeof(ApplicationDbContext));

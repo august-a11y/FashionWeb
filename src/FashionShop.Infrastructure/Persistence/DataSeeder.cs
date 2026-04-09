@@ -15,10 +15,24 @@ namespace FashionShop.Infrastructure.Persistence
         private static readonly Guid DemoUserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
         private const string DemoOrderCode = "DEMO-ORDER-0001";
+        private const string AdminNormalizedUserName = "ADMIN";
 
         public async Task SeedAsync(ApplicationDbContext context, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(context);
+
+           
+            var alreadySeeded = await context.Users
+                .IgnoreQueryFilters()
+                .AnyAsync(u => u.NormalizedUserName == AdminNormalizedUserName, cancellationToken)
+                && await context.Orders
+                    .IgnoreQueryFilters()
+                    .AnyAsync(o => o.OrderCode == DemoOrderCode, cancellationToken);
+
+            if (alreadySeeded)
+            {
+                return;
+            }
 
             var passwordHasher = new PasswordHasher<AppUser>();
 
@@ -300,13 +314,13 @@ namespace FashionShop.Infrastructure.Persistence
 
         private static async Task SeedCatalogAsync(ApplicationDbContext context, CancellationToken cancellationToken)
         {
-            var categorySeeds = new[]
+            var parentSeeds = new[]
             {
                 new { Name = "Áo", Description = "Các loại áo thời trang" },
                 new { Name = "Quần", Description = "Các loại quần thời trang" }
             };
 
-            foreach (var item in categorySeeds)
+            foreach (var item in parentSeeds)
             {
                 var category = await context.Categories
                     .IgnoreQueryFilters()
@@ -314,7 +328,7 @@ namespace FashionShop.Infrastructure.Persistence
 
                 if (category is null)
                 {
-                    await context.Categories.AddAsync(new Category(item.Name, item.Description), cancellationToken);
+                    await context.Categories.AddAsync(new Category(item.Name, item.Description, null), cancellationToken);
                     continue;
                 }
 
@@ -332,6 +346,13 @@ namespace FashionShop.Infrastructure.Persistence
                     changed = true;
                 }
 
+                // parent category phải là root
+                if (category.ParentCategoryId != null)
+                {
+                    category.ParentCategoryId = null;
+                    changed = true;
+                }
+
                 if (changed)
                 {
                     context.Categories.Update(category);
@@ -340,169 +361,174 @@ namespace FashionShop.Infrastructure.Persistence
 
             await context.SaveChangesAsync(cancellationToken);
 
-            var shirtCategoryId = await context.Categories
+            var aoParentId = await context.Categories
+                .IgnoreQueryFilters()
                 .Where(c => c.Name == "Áo")
                 .Select(c => c.Id)
                 .FirstAsync(cancellationToken);
 
-            var pantCategoryId = await context.Categories
+            var quanParentId = await context.Categories
+                .IgnoreQueryFilters()
                 .Where(c => c.Name == "Quần")
                 .Select(c => c.Id)
                 .FirstAsync(cancellationToken);
 
-            var productSeeds = new[]
+            var childSeeds = new[]
             {
-                new
-                {
-                    Name = "Áo thun basic",
-                    Description = "Áo thun cotton thoáng mát",
-                    BasePrice = 199000m,
-                    CategoryId = shirtCategoryId,
-                    ThumbnailUrl = "/images/products/ao-thun-basic.jpg"
-                },
-                new
-                {
-                    Name = "Quần jeans slimfit",
-                    Description = "Quần jeans co giãn",
-                    BasePrice = 399000m,
-                    CategoryId = pantCategoryId,
-                    ThumbnailUrl = "/images/products/quan-jeans.jpg"
-                }
+                new { Name = "Áo thun", Description = "Các loại áo thun thời trang", ParentId = aoParentId },
+                new { Name = "Áo polo", Description = "Các loại áo polo thời trang", ParentId = aoParentId },
+                new { Name = "Áo sơ mi", Description = "Các loại áo sơ mi thời trang", ParentId = aoParentId },
+                new { Name = "Áo khoác", Description = "Các loại áo khoác thời trang", ParentId = aoParentId },
+                new { Name = "Quần jeans", Description = "Các loại quần jeans thời trang", ParentId = quanParentId },
+                new { Name = "Quần tây", Description = "Các loại quần tây thời trang", ParentId = quanParentId }
             };
 
-            foreach (var item in productSeeds)
+            foreach (var item in childSeeds)
             {
-                var product = await context.Products
+                var category = await context.Categories
                     .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(p => p.Name == item.Name, cancellationToken);
+                    .FirstOrDefaultAsync(c => c.Name == item.Name, cancellationToken);
 
-                if (product is null)
+                if (category is null)
                 {
-                    await context.Products.AddAsync(new Product
-                    {
-                        Name = item.Name,
-                        Description = item.Description,
-                        BasePrice = item.BasePrice,
-                        CategoryId = item.CategoryId,
-                        ThumbnailUrl = item.ThumbnailUrl,
-                        IsDeleted = false
-                    }, cancellationToken);
+                    await context.Categories.AddAsync(new Category(item.Name, item.Description, item.ParentId), cancellationToken);
                     continue;
                 }
 
                 var changed = false;
-                if (product.IsDeleted)
+                if (category.IsDeleted)
                 {
-                    product.IsDeleted = false;
-                    product.DeletedAt = null;
+                    category.IsDeleted = false;
+                    category.DeletedAt = null;
                     changed = true;
                 }
 
-                if (!string.Equals(product.Description, item.Description, StringComparison.Ordinal))
+                if (!string.Equals(category.Description, item.Description, StringComparison.Ordinal))
                 {
-                    product.Description = item.Description;
+                    category.Description = item.Description;
                     changed = true;
                 }
 
-                if (product.BasePrice != item.BasePrice)
+                if (category.ParentCategoryId != item.ParentId)
                 {
-                    product.BasePrice = item.BasePrice;
-                    changed = true;
-                }
-
-                if (product.CategoryId != item.CategoryId)
-                {
-                    product.CategoryId = item.CategoryId;
-                    changed = true;
-                }
-
-                if (!string.Equals(product.ThumbnailUrl, item.ThumbnailUrl, StringComparison.Ordinal))
-                {
-                    product.ThumbnailUrl = item.ThumbnailUrl;
+                    category.ParentCategoryId = item.ParentId;
                     changed = true;
                 }
 
                 if (changed)
                 {
-                    context.Products.Update(product);
+                    context.Categories.Update(category);
                 }
             }
 
             await context.SaveChangesAsync(cancellationToken);
 
-            var shirtProductId = await context.Products
-                .Where(p => p.Name == "Áo thun basic")
-                .Select(p => p.Id)
+            var aoThunCategoryId = await context.Categories
+                .Where(c => c.Name == "Áo thun")
+                .Select(c => c.Id)
                 .FirstAsync(cancellationToken);
 
-            var jeanProductId = await context.Products
-                .Where(p => p.Name == "Quần jeans slimfit")
-                .Select(p => p.Id)
+            var aoPoloCategoryId = await context.Categories
+                .Where(c => c.Name == "Áo polo")
+                .Select(c => c.Id)
                 .FirstAsync(cancellationToken);
 
-            var variantSeeds = new[]
-            {
-                new { ProductId = shirtProductId, Size = "M", Color = "Trắng", Price = 199000m, Stock = 50, Thumbnail = "/images/products/ao-thun-trang.jpg" },
-                new { ProductId = shirtProductId, Size = "L", Color = "Trắng", Price = 199000m, Stock = 30, Thumbnail = "/images/products/ao-thun-trang.jpg" },
-                new { ProductId = shirtProductId, Size = "M", Color = "Đen", Price = 209000m, Stock = 20, Thumbnail = "/images/products/ao-thun-den.jpg" },
-                new { ProductId = jeanProductId, Size = "29", Color = "Xanh Navy", Price = 399000m, Stock = 100, Thumbnail = "/images/products/quan-jeans-navy.jpg" },
-                new { ProductId = jeanProductId, Size = "30", Color = "Xanh Navy", Price = 399000m, Stock = 80, Thumbnail = "/images/products/quan-jeans-navy.jpg" }
-            };
+            var aoSoMiCategoryId = await context.Categories
+                .Where(c => c.Name == "Áo sơ mi")
+                .Select(c => c.Id)
+                .FirstAsync(cancellationToken);
 
-            foreach (var item in variantSeeds)
-            {
-                var variant = await context.ProductVariants
-                    .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(v =>
-                        v.ProductId == item.ProductId &&
-                        v.Size == item.Size &&
-                        v.Color == item.Color,
-                        cancellationToken);
+            var aoKhoacCategoryId = await context.Categories
+                .Where(c => c.Name == "Áo khoác")
+                .Select(c => c.Id)
+                .FirstAsync(cancellationToken);
 
-                if (variant is null)
+            var quanJeansCategoryId = await context.Categories
+                .Where(c => c.Name == "Quần jeans")
+                .Select(c => c.Id)
+                .FirstAsync(cancellationToken);
+
+            var quanTayCategoryId = await context.Categories
+                .Where(c => c.Name == "Quần tây")
+                .Select(c => c.Id)
+                .FirstAsync(cancellationToken);
+
+            await ProductManualSeeder.SeedBulkProductsAsync(
+                context,
+                aoThunCategoryId,
+                aoPoloCategoryId,
+                aoSoMiCategoryId,
+                aoKhoacCategoryId,
+                quanJeansCategoryId,
+                quanTayCategoryId,
+                cancellationToken);
+
+            var products = await context.Products
+                .IgnoreQueryFilters()
+                .Where(p => !p.IsDeleted)
+                .Select(p => new { p.Id, p.BasePrice, p.ThumbnailUrl })
+                .ToListAsync(cancellationToken);
+
+            var sizeSeeds = new[] { "S", "M", "L", "XL" };
+
+            foreach (var product in products)
+            {
+                foreach (var size in sizeSeeds)
                 {
-                    await context.ProductVariants.AddAsync(new Variant
+                    var variant = await context.ProductVariants
+                        .IgnoreQueryFilters()
+                        .FirstOrDefaultAsync(v =>
+                            v.ProductId == product.Id &&
+                            v.Size == size &&
+                            v.Color == "Mặc định",
+                            cancellationToken);
+
+                    if (variant is null)
                     {
-                        ProductId = item.ProductId,
-                        Size = item.Size,
-                        Color = item.Color,
-                        Price = item.Price,
-                        StockQuantity = item.Stock,
-                        ThumbnailUrl = item.Thumbnail,
-                        IsDeleted = false
-                    }, cancellationToken);
-                    continue;
-                }
+                        await context.ProductVariants.AddAsync(new Variant
+                        {
+                            ProductId = product.Id,
+                            Size = size,
+                            Color = "Mặc định",
+                            Price = product.BasePrice ?? 0m,
+                            StockQuantity = 100,
+                            ThumbnailUrl = product.ThumbnailUrl,
+                            IsDeleted = false
+                        }, cancellationToken);
 
-                var changed = false;
-                if (variant.IsDeleted)
-                {
-                    variant.IsDeleted = false;
-                    variant.DeletedAt = null;
-                    changed = true;
-                }
+                        continue;
+                    }
 
-                if (variant.Price != item.Price)
-                {
-                    variant.Price = item.Price;
-                    changed = true;
-                }
+                    var changed = false;
+                    if (variant.IsDeleted)
+                    {
+                        variant.IsDeleted = false;
+                        variant.DeletedAt = null;
+                        changed = true;
+                    }
 
-                if (variant.StockQuantity != item.Stock)
-                {
-                    variant.StockQuantity = item.Stock;
-                    changed = true;
-                }
+                    if (variant.Price != (product.BasePrice ?? 0m))
+                    {
+                        variant.Price = product.BasePrice ?? 0m;
+                        changed = true;
+                    }
 
-                if (!string.Equals(variant.ThumbnailUrl, item.Thumbnail, StringComparison.Ordinal))
-                {
-                    variant.ThumbnailUrl = item.Thumbnail;
-                    changed = true;
-                }
+                    if (variant.StockQuantity != 100)
+                    {
+                        variant.StockQuantity = 100;
+                        changed = true;
+                    }
 
-                if (changed)
-                {
-                    context.ProductVariants.Update(variant);
+                    if (!string.Equals(variant.ThumbnailUrl, product.ThumbnailUrl, StringComparison.Ordinal))
+                    {
+                        variant.ThumbnailUrl = product.ThumbnailUrl;
+                        changed = true;
+                    }
+
+                    if (changed)
+                    {
+                        context.ProductVariants.Update(variant);
+                    }
                 }
             }
 

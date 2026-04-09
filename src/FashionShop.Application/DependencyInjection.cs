@@ -1,13 +1,13 @@
-using FashionShop.Application.CartServices;
-using FashionShop.Application.CategoryServices;
 using FashionShop.Application.Common.Behaviors;
-using FashionShop.Application.OrderServices;
-using FashionShop.Application.ProductServices;
-using FashionShop.Application.VariantServices;
-using FashionShop.Application.AddressServices;
-using FashionShop.Application.UserServices;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using FashionShop.Application.Services.ProductServices;
+using FashionShop.Application.Services.OrderServices;
+using FashionShop.Application.Services.VariantServices;
+using FashionShop.Application.Services.UserServices;
+using FashionShop.Application.Services.CategoryServices;
+using FashionShop.Application.Services.AddressServices;
+using FashionShop.Application.Services.CartServices;
 
 namespace FashionShop.Application
 {

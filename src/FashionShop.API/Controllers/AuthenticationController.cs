@@ -1,5 +1,5 @@
-﻿using FashionShop.Application.AuthServices;
-using FashionShop.Application.AuthServices.Models;
+﻿using FashionShop.Application.Services.AuthServices;
+using FashionShop.Application.Services.AuthServices.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FashionShop.API.Controllers
@@ -16,7 +16,7 @@ namespace FashionShop.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO login)
+        public async Task<ActionResult<ApiResponse<AuthenticatedResponse>>> Login([FromBody] LoginRequestDTO login)
         {
             var result = await _authenticatedService.LoginAsync(login.Username, login.Password);
             if (result.IsFailed)
@@ -29,7 +29,7 @@ namespace FashionShop.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDTO register)
+        public async Task<ActionResult<ApiResponse>> Register([FromBody] RegisterRequestDTO register)
         {
             var result = await _authenticatedService.RegisterAsync(
                 register.Username,
@@ -46,6 +46,19 @@ namespace FashionShop.API.Controllers
             }
 
             return Ok(ApiResponse.CreateSuccessResponse("Registration successful."));
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<ApiResponse<AuthenticatedResponse>>> RefreshToken([FromBody] RefreshTokenRequestDTO request)
+        {
+            var result = await _authenticatedService.RefreshTokenAsync(request.AccessToken, request.RefreshToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Refresh token failed.";
+                return Unauthorized(ApiResponse.CreateFailureResponse(message, 401));
+            }
+
+            return Ok(ApiResponse<AuthenticatedResponse>.CreateSuccessResponse(result.Value, "Refresh token successful."));
         }
     }
 }

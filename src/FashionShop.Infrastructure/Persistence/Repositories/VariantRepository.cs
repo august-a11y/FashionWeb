@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {
-    public class VariantRepository : Repository<Variant, Guid>, IVariantRepository 
+    public class VariantRepository : Repository<Variant>, IVariantRepository 
     {
         public VariantRepository(ApplicationDbContext dbContext) : base(dbContext)
         {

@@ -1,7 +1,7 @@
-using FashionShop.Application.AuthServices.Models;
 using FashionShop.Application.Common.Interfaces;
 using FashionShop.Application.Extensions;
-using FashionShop.Application.UserServices.DTO;
+using FashionShop.Application.Services.AuthServices.Models;
+using FashionShop.Application.Services.UserServices.DTO;
 using FashionShop.Domain.Constants;
 using FashionShop.Domain.Identity;
 using FluentResults;
@@ -60,6 +60,40 @@ namespace FashionShop.Infrastructure.Identity
                 Roles = roles.ToList(),
                 Permissions = permissions,
                 RefreshToken = refreshToken
+            });
+        }
+
+        public async Task<Result<LoginIdentityResult>> RefreshTokenAsync(Guid userId, string refreshToken)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) return Result.Fail("User not found.");
+            if (!user.IsActive) return Result.Fail("User account is inactive.");
+
+            if (string.IsNullOrWhiteSpace(user.RefreshToken) ||
+                !string.Equals(user.RefreshToken, refreshToken, StringComparison.Ordinal) ||
+                user.RefreshTokenExpiryTime is null ||
+                user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                return Result.Fail("Invalid or expired refresh token.");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await GetPermissionsByUserIdAsync(user.Id.ToString());
+
+            var newRefreshToken = Guid.NewGuid().ToString("N");
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
+            return Result.Ok(new LoginIdentityResult
+            {
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName ?? string.Empty,
+                Roles = roles.ToList(),
+                Permissions = permissions,
+                RefreshToken = newRefreshToken
             });
         }
 

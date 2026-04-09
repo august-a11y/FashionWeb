@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
 using System.Text;
+using Microsoft.AspNetCore.StaticFiles;
 
 
 internal class Program
@@ -71,8 +73,15 @@ internal class Program
         // Config DbContext with SQL Server
         builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(connectionString, b => b.MigrationsAssembly("FashionShop.API"));
+            options.UseSqlServer(connectionString,
+
+                b => {
+                    b.MigrationsAssembly("FashionShop.Infrastructure");
+                    b.UseCompatibilityLevel(120);
+                });
+
         });
+
 
         // Configure Identity
         builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -142,6 +151,22 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+
+        var contentTypeProvider = new FileExtensionContentTypeProvider();
+        var imgPath = Path.Combine(app.Environment.ContentRootPath, "img");
+        if (Directory.Exists(imgPath))
+        {
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(imgPath),
+                RequestPath = "/img",
+                ContentTypeProvider = contentTypeProvider,
+                OnPrepareResponse = ctx =>
+                {
+                    ctx.Context.Response.Headers["Access-Control-Allow-Origin"] = "http://localhost:4200";
+                }
+            });
+        }
 
         app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<JwtContextMiddleware>();

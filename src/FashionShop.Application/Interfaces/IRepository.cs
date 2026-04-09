@@ -1,26 +1,20 @@
-﻿using System.Linq.Expressions;
+﻿using FashionShop.Application.Common.DTOs;
+using System.Linq.Expressions;
+using Ardalis.Specification;
+using FashionShop.Domain.Common;
 
 namespace FashionShop.Application.Interfaces
 {
-    public interface IRepository<T, Key> where T : class
+    public interface IRepository<T> : IRepositoryBase<T> where T : BaseEntity
     {
-      
-        Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken);
-
-        Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<List<T>> GetListByIdsAsync(List<Guid> ids, CancellationToken cancellationToken);
-          
-        IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
 
-        void Add(T Entity);
-        
-        void AddRange(IEnumerable<T> Entities);
-        void RemoveRange(IEnumerable<T> Entities);
-        void Remove(T Entity);
+        Task<PageResponse<T>> PagedListAsync(
+            ISpecification<T> specification,
+            int pageIndex,
+            int pageSize,
+            CancellationToken cancellationToken);
 
-
-        public void Save(T Entity);
-
-
+  
     }
 }

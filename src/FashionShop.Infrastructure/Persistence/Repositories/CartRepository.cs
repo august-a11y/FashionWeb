@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Persistence.Repositories
 {
-    public class CartRepository : Repository<Cart, Guid>, ICartRepository
+    public class CartRepository : Repository<Cart>, ICartRepository
     {
         public  CartRepository(ApplicationDbContext dbContext) : base(dbContext)
         {

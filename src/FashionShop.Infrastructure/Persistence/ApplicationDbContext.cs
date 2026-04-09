@@ -113,6 +113,12 @@ namespace FashionShop.Infrastructure.Persistence
                 .HasForeignKey(o => o.UserId);
 
 
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.ParentCategory)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+  
 
 
   
