@@ -72,5 +72,42 @@ namespace FashionShop.API.Controllers.User
 
             return Ok(ApiResponse<PageResponse<ProductResponseDTO>>.CreateSuccessResponse(result.Value, "Products retrieved successfully."));
         }
+
+        [HttpGet("parents")]
+        public async Task<ActionResult<ApiResponse<List<CategoryDTO>>>> GetParentCategories(CancellationToken cancellationToken)
+        {
+            var result = await _categoryService.GetParentCategoriesAsync(cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to retrieve parent categories.";
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<List<CategoryDTO>>.CreateSuccessResponse(result.Value, "Parent categories retrieved successfully."));
+        }
+
+        [HttpGet("{parentId:guid}/sub")]
+        public async Task<ActionResult<ApiResponse<List<CategoryDTO>>>> GetSubCategoriesByParentId(
+            [FromRoute] Guid parentId,
+            CancellationToken cancellationToken)
+        {
+            if (parentId == Guid.Empty)
+                return BadRequest(ApiResponse.CreateFailureResponse("Invalid parent category id.", 400));
+
+            var result = await _categoryService.GetSubCategoriesByParentIdAsync(parentId, cancellationToken);
+            if (result.IsFailed)
+            {
+                var message = result.Errors.FirstOrDefault()?.Message ?? "Failed to retrieve child categories.";
+                if (message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    return NotFound(ApiResponse.CreateFailureResponse(message, 404));
+                }
+
+                return BadRequest(ApiResponse.CreateFailureResponse(message, 400));
+            }
+
+            return Ok(ApiResponse<List<CategoryDTO>>.CreateSuccessResponse(result.Value, "Child categories retrieved successfully."));
+        }
+
     }
 }

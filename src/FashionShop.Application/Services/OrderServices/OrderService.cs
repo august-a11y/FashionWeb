@@ -35,8 +35,8 @@ namespace FashionShop.Application.Services.OrderServices
             if (createOrderDto.OrderItems == null || createOrderDto.OrderItems.Count == 0)
                 return Result.Fail<OrderDTO>("Order must contain at least one item.");
 
-            if (!_userContext.UserId.HasValue)
-                return Result.Fail<OrderDTO>("User is not authenticated.");
+            //if (!_userContext.UserId.HasValue)
+            //    return Result.Fail<OrderDTO>("User is not authenticated.");
 
             var variantIds = createOrderDto.OrderItems
                 .Select(x => x.VariantId)
@@ -91,7 +91,7 @@ namespace FashionShop.Application.Services.OrderServices
             var order = new Order
             {
                 OrderCode = GenerateOrderCode(),
-                UserId = _userContext.UserId.Value,
+                UserId = _userContext.UserId.HasValue ? _userContext.UserId.Value : null,
                 Status = OrderStatus.Pending,
                 SubTotal = subTotal,
                 ShippingFee = shippingFee,
@@ -130,10 +130,14 @@ namespace FashionShop.Application.Services.OrderServices
                 await _orderRepository.AddAsync(order, cancellationToken);
                 createdOrder = order;
 
-                await _cartItemRepository.DeleteItemsByCartIdAsync(
-                    _userContext.UserId!.Value,
+                if (_userContext.UserId.HasValue)
+                {
+                    await _cartItemRepository.DeleteItemsByCartIdAsync(
+                    _userContext.UserId.Value,
                     variantIds,
                     cancellationToken);
+                }
+                
 
                 await _unitOfWork.CommitAsync(cancellationToken);
             }, cancellationToken);
@@ -227,19 +231,14 @@ namespace FashionShop.Application.Services.OrderServices
             });
         }
 
-        public async Task<Result<bool>> UpdateOderStatusAsync(Guid orderId, string status, CancellationToken cancellationToken)
+        public async Task<Result<bool>> UpdateOderStatusAsync(Guid orderId, OrderStatus status, CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
             if (order == null)
                 return Result.Fail<bool>("Order does not exist.");
 
-            if (string.IsNullOrWhiteSpace(status))
-                return Result.Fail<bool>("Status is required.");
-
-            if (!Enum.TryParse<OrderStatus>(status, true, out var newStatus))
-                return Result.Fail<bool>("Invalid order status.");
-
             var currentStatus = order.Status;
+            var newStatus = status;
 
             if (currentStatus == newStatus)
                 return Result.Ok(true);
@@ -257,6 +256,7 @@ namespace FashionShop.Application.Services.OrderServices
         {
             return new OrderDTO
             {
+                Id = order.Id,
                 OrderCode = string.IsNullOrWhiteSpace(order.OrderCode)
                     ? order.Id.ToString("N").ToUpper()[..10]
                     : order.OrderCode,
@@ -303,12 +303,21 @@ namespace FashionShop.Application.Services.OrderServices
             return from switch
             {
                 OrderStatus.Pending => to is OrderStatus.Processing or OrderStatus.Cancelled,
-                OrderStatus.Processing => to is OrderStatus.Shipped or OrderStatus.Cancelled,
-                OrderStatus.Shipped => to == OrderStatus.Delivered,
+                OrderStatus.Processing => to is OrderStatus.Shipping or OrderStatus.Cancelled,
+                OrderStatus.Shipping => to == OrderStatus.Delivered,
                 OrderStatus.Delivered => false,
                 OrderStatus.Cancelled => false,
                 _ => false
             };
+        }
+
+        public async Task<Result<List<OrderDTO>>> GetAllOrdersAsync(CancellationToken cancellationToken)
+        {
+            var order = await _orderRepository.ListAsync(cancellationToken);
+            if (order == null || order.Count == 0)
+                return Result.Ok(new List<OrderDTO>());
+            var orderDtos = order.Select(MapOrderToDto).ToList();
+            return Result.Ok(orderDtos);
         }
     }
 }

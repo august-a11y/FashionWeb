@@ -18,7 +18,8 @@ namespace FashionShop.API.Controllers.Admin
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<ProductResponseDTO>>> CreateProduct([FromBody] CreateProductDTO createProductDTO, CancellationToken cancellationToken)
+        //[Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApiResponse<ProductResponseDTO>>> CreateProduct([FromForm] CreateProductDTO createProductDTO, CancellationToken cancellationToken)
         {
             try
             {
@@ -35,7 +36,8 @@ namespace FashionShop.API.Controllers.Admin
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<ProductResponseDTO>>> UpdateProduct([FromRoute] Guid id, [FromBody] UpdateDetailsProductDTO updateDetailsProductDTO, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApiResponse<ProductResponseDTO>>> UpdateProduct([FromRoute] Guid id, [FromForm] UpdateDetailsProductDTO updateDetailsProductDTO, CancellationToken cancellationToken)
         {
             if (id == Guid.Empty)
                 return BadRequest(ApiResponse.CreateFailureResponse("Invalid product id.", 400));

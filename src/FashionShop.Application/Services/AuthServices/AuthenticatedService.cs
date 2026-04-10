@@ -72,6 +72,10 @@ namespace FashionShop.Application.Services.AuthServices
         {
             return _identityService.RegisterAsync(username, email, firstName, lastName, phoneNumber, password);
         }
+        public Task<string> GetRoleByUserIdAsync(Guid userId)
+        {
+            return _identityService.GetRoleByUserIdAsync(userId);
+        }
 
         private AuthenticatedResponse BuildAuthenticatedResponse(LoginIdentityResult user)
         {
@@ -95,5 +99,6 @@ namespace FashionShop.Application.Services.AuthServices
                 RefreshToken = user.RefreshToken
             };
         }
+
     }
 }

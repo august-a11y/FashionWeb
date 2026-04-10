@@ -8,7 +8,7 @@ namespace FashionShop.Domain.Entities
     public class Order : BaseEntity
     {
         public string OrderCode { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public virtual AppUser User { get; set; } 
 
         public OrderAddressSnapshot ShippingAddress { get; set; } 
@@ -45,7 +45,7 @@ namespace FashionShop.Domain.Entities
     public enum PaymentMethod { COD, CreditCard, Momo, PayPal }
     public enum PaymentStatus { Pending, Success, Failed, Refunded }
     public enum ShipmentStatus { Preparing, InTransit, Delivered, Returned }
-    public enum OrderStatus { Pending, Processing, Shipped, Delivered, Cancelled }
+    public enum OrderStatus { Pending, Processing, Shipping, Delivered, Cancelled }
 
     public class Payment : BaseEntity
     {

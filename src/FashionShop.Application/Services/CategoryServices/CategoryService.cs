@@ -5,8 +5,7 @@ using FashionShop.Application.Services.ProductServices;
 using FashionShop.Application.Services.ProductServices.DTO;
 using FashionShop.Application.Specifications;
 using FluentResults;
-using System.Globalization;
-using System.Text;
+
 
 namespace FashionShop.Application.Services.CategoryServices
 {
@@ -104,7 +103,7 @@ namespace FashionShop.Application.Services.CategoryServices
             var spec = new CategoryFilterSpecification(parentCategoryId: categoryId);
             var root = await _categoryRepository.ListAsync(spec, cancellationToken);
             
-            if (root == null)
+            if (root.Count == 0)
                 return await _productService.GetProductsByCategoryAsync(pageIndex, pageSize, categoryId, cancellationToken);
             var subCategoryIds = root.Select(c => c.Id).ToList();
             return await _productService.GetProductsByListCategoryIdAsync(subCategoryIds, pageIndex, pageSize, cancellationToken);
@@ -128,6 +127,42 @@ namespace FashionShop.Application.Services.CategoryServices
                 Description = category.Description
             });
 
+        }
+
+        public async Task<Result<List<CategoryDTO>>> GetParentCategoriesAsync(CancellationToken cancellationToken)
+        {
+            var allCategories = await _categoryRepository.ListAsync( cancellationToken);
+            var parentCategories = allCategories.Where(c => !c.ParentCategoryId.HasValue).ToList();
+            var parentCategoryDTOs = parentCategories.Select(c => new CategoryDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description
+            }).ToList();
+            return Result.Ok(parentCategoryDTOs);
+        }
+
+        public async Task<Result<List<CategoryDTO>>> GetSubCategoriesByParentIdAsync(
+            Guid parentCategoryId,
+            CancellationToken cancellationToken)
+        {
+            var parentCategory = await _categoryRepository.GetByIdAsync(parentCategoryId, cancellationToken);
+            if (parentCategory == null)
+            {
+                return Result.Fail<List<CategoryDTO>>($"Category with id {parentCategoryId} not found.");
+            }
+
+            var spec = new CategoryFilterSpecification(parentCategoryId: parentCategoryId);
+            var subCategories = await _categoryRepository.ListAsync(spec, cancellationToken);
+
+            var subCategoryDtos = subCategories.Select(c => new CategoryDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description
+            }).ToList();
+
+            return Result.Ok(subCategoryDtos);
         }
     }
 }

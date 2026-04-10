@@ -6,6 +6,7 @@ namespace FashionShop.Application.Services.OrderServices.DTO
 {
     public class OrderDTO
     {
+        public Guid Id { get; set; }
         public string OrderCode { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }

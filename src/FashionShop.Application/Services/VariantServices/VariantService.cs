@@ -1,3 +1,4 @@
+using FashionShop.Application.Common.Interfaces;
 using FashionShop.Application.Interfaces;
 using FashionShop.Application.Services.VariantServices.DTO;
 using FashionShop.Application.Specifications;
@@ -8,18 +9,22 @@ namespace FashionShop.Application.Services.VariantServices
 {
     public class VariantService : IVariantService
     {
+        private const string BaseUri = "https://localhost:7239";
         private readonly IRepository<Variant> _variantRepository;
         private readonly IRepository<Product> _productRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPhotoService _photoService;
 
         public VariantService(
             IRepository<Variant> variantRepository,
             IRepository<Product> productRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IPhotoService photoService)
         {
             _variantRepository = variantRepository;
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
+            _photoService = photoService;
         }
 
         public async Task<Result<List<VariantDTO>>> GetVariantsByProductIdAsync(Guid productId, CancellationToken cancellationToken)
@@ -30,20 +35,18 @@ namespace FashionShop.Application.Services.VariantServices
             var specification = new VariantFilterSpecification(productId: productId, inStockOnly: null);
             var variants = await _variantRepository.ListAsync(specification, cancellationToken) ?? new List<Variant>();
 
-            var result = variants
-                .Select(MapToDto)
-                .ToList();
-
-            return Result.Ok(result);
+            return Result.Ok(variants.Select(MapToDto).ToList());
         }
 
         public async Task<Result<VariantDTO>> GetVariantByIdAsync(Guid variantId, CancellationToken cancellationToken)
         {
             if (variantId == Guid.Empty)
                 return Result.Fail<VariantDTO>("Invalid variant id.");
+
             var specification = new VariantFilterSpecification(variantId: variantId);
             var root = await _variantRepository.ListAsync(specification, cancellationToken);
             var variant = root?.FirstOrDefault();
+
             if (variant == null)
                 return Result.Fail<VariantDTO>("Variant not found.");
 
@@ -65,12 +68,16 @@ namespace FashionShop.Application.Services.VariantServices
             if (product == null)
                 return Result.Fail<VariantDTO>("Product not found.");
 
+            var thumbnailUrl = string.Empty;
+            if (createVariantDto.ThumbnailFile != null)
+                thumbnailUrl = await _photoService.UploadPhotoAsync(createVariantDto.ThumbnailFile, "variants");
+
             var variant = new Variant
             {
                 ProductId = createVariantDto.ProductId,
                 Size = createVariantDto.Size,
                 Color = createVariantDto.Color,
-                ThumbnailUrl = createVariantDto.ThumbnailUrl,
+                ThumbnailUrl = thumbnailUrl,
                 Price = createVariantDto.Price,
                 StockQuantity = createVariantDto.StockQuantity
             };
@@ -102,11 +109,19 @@ namespace FashionShop.Application.Services.VariantServices
                 updateVariantDto.Color ?? string.Empty,
                 updateVariantDto.StockQuantity);
 
-            if (!string.IsNullOrWhiteSpace(updateVariantDto.ThumbnailUrl))
-                variant.ThumbnailUrl = updateVariantDto.ThumbnailUrl;
+            if (updateVariantDto.ThumbnailFile is { Length: > 0 })
+            {
+                var newThumbnailUrl = await _photoService.UploadPhotoAsync(updateVariantDto.ThumbnailFile, "variants");
+                if (!string.IsNullOrWhiteSpace(newThumbnailUrl))
+                {
+                    if (!string.IsNullOrWhiteSpace(variant.ThumbnailUrl))
+                        await _photoService.DeletePhotoAsync(variant.ThumbnailUrl);
+
+                    variant.ThumbnailUrl = newThumbnailUrl;
+                }
+            }
 
             await _unitOfWork.CommitAsync(cancellationToken);
-
             return Result.Ok(MapToDto(variant));
         }
 
@@ -118,6 +133,9 @@ namespace FashionShop.Application.Services.VariantServices
             var variant = await _variantRepository.GetByIdAsync(variantId, cancellationToken);
             if (variant == null)
                 return Result.Fail<bool>("Variant not found.");
+
+            if (!string.IsNullOrWhiteSpace(variant.ThumbnailUrl))
+                await _photoService.DeletePhotoAsync(variant.ThumbnailUrl);
 
             await _variantRepository.DeleteAsync(variant, cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
@@ -133,10 +151,21 @@ namespace FashionShop.Application.Services.VariantServices
                 ProductName = variant.Product?.Name ?? string.Empty,
                 Size = variant.Size,
                 Color = variant.Color,
-                ThumbnailUrl = variant.ThumbnailUrl,
+                ThumbnailUrl = BuildAbsoluteThumbnailUrl(variant.ThumbnailUrl),
                 Price = variant.Price,
                 StockQuantity = variant.StockQuantity
             };
+        }
+
+        private static string BuildAbsoluteThumbnailUrl(string? thumbnailUrl)
+        {
+            if (string.IsNullOrWhiteSpace(thumbnailUrl))
+                return string.Empty;
+
+            if (Uri.TryCreate(thumbnailUrl, UriKind.Absolute, out _))
+                return thumbnailUrl;
+
+            return $"{BaseUri}{(thumbnailUrl.StartsWith('/') ? thumbnailUrl : "/" + thumbnailUrl)}";
         }
     }
 }

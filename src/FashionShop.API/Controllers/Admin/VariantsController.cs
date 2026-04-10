@@ -18,7 +18,8 @@ namespace FashionShop.API.Controllers.Admin
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<VariantDTO>>> Create([FromBody] CreateVariantDTO createVariantDto, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApiResponse<VariantDTO>>> Create([FromForm] CreateVariantDTO createVariantDto, CancellationToken cancellationToken)
         {
             var result = await _variantService.CreateVariantAsync(createVariantDto, cancellationToken);
             if (result.IsFailed)
@@ -28,7 +29,8 @@ namespace FashionShop.API.Controllers.Admin
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<VariantDTO>>> Update([FromRoute] Guid id, [FromBody] UpdateVariantDTO updateVariantDto, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApiResponse<VariantDTO>>> Update([FromRoute] Guid id, [FromForm] UpdateVariantDTO updateVariantDto, CancellationToken cancellationToken)
         {
             var result = await _variantService.UpdateVariantAsync(id, updateVariantDto, cancellationToken);
             if (result.IsFailed)

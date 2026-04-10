@@ -8,6 +8,8 @@ using FashionShop.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using FashionShop.Infrastructure.Identity;
 using FashionShop.Application.Services.AuthServices;
+using FashionShop.Application.Services.DashboardServices;
+using FashionShop.Application.Services;
 
 namespace FashionShop.Infrastructure
 {
@@ -20,9 +22,11 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IRedisCache, RedisCache>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<IPhotoService, LocalPhotoService>();
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IDashboardReadRepository, DashboardReadRepository>();
 
             // Repositories
-
             services.AddScoped<ICartItemRepository, CartItemRepository>();
             services.AddScoped<IVariantRepository, VariantRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
@@ -34,6 +38,7 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<RequestContext>();
             services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
+
 
             // Shared infra utilities
             services.AddMemoryCache();

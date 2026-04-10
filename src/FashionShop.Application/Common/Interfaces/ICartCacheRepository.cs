@@ -9,5 +9,8 @@ namespace FashionShop.Application.Common.Interfaces
         Task AddItemAsync(string cartKey, CartItemDTO item, CancellationToken cancellationToken);
         Task RemoveItemAsync(string cartKey, Guid productId, Guid variantId, CancellationToken cancellationToken);
         Task<bool> DecreaseItemAsync(string cartKey, Guid productId, Guid variantId, int quantity, CancellationToken cancellationToken);
+        Task RemoveListItemAsync(string cartKey, IEnumerable<(Guid ProductId, Guid VariantId)> items, CancellationToken cancellationToken);
+        Task<bool> IncreaseItemAsync(string cartKey, Guid productId, Guid variantId, int quantity, CancellationToken cancellationToken);
+
     }
 }

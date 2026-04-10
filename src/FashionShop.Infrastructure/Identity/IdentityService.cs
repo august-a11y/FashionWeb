@@ -191,6 +191,13 @@ namespace FashionShop.Infrastructure.Identity
 
             return Result.Fail($"Change password failed: {string.Join(", ", changed.Errors.Select(e => e.Description))}");
         }
+        public async Task<string> GetRoleByUserIdAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) return string.Empty;
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.FirstOrDefault() ?? string.Empty;
+        }
 
         private async Task<List<string>> GetPermissionsByUserIdAsync(string userId)
         {

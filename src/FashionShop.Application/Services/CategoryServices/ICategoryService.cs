@@ -13,5 +13,8 @@ namespace FashionShop.Application.Services.CategoryServices
         Task<Result<CategoryDTO>> CreateCategoryAsync(CreateCategoryDTO createCategoryDto, CancellationToken cancellationToken);
         Task<Result<CategoryDTO>> UpdateCategoryAsync(Guid id, UpdateCategoryDTO updateCategoryDto, CancellationToken cancellationToken);
         Task<Result<bool>> DeleteCategoryAsync(Guid id, CancellationToken cancellationToken);
+        Task<Result<List<CategoryDTO>>> GetParentCategoriesAsync(CancellationToken cancellationToken);
+        Task<Result<List<CategoryDTO>>> GetSubCategoriesByParentIdAsync(Guid parentCategoryId, CancellationToken cancellationToken);
+
     }
 }

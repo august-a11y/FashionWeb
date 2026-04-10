@@ -7,7 +7,7 @@ namespace FashionShop.API.Controllers.User
 {
     [ApiController]
     [Route("api/carts")]
-    [Authorize]
+
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -48,13 +48,12 @@ namespace FashionShop.API.Controllers.User
         }
 
         [HttpPatch("me/items")]
-        public async Task<ActionResult<ApiResponse>> DecreaseQuantity([FromBody] CartItemUpdateDTO dto, CancellationToken cancellationToken)
+        public async Task<ActionResult<ApiResponse>> UpdateQuantity([FromBody] CartItemUpdateDTO dto, CancellationToken cancellationToken)
         {
-            var result = await _cartService.DecreaseQuantityItemFromCartAsync(dto, cancellationToken);
+            var result = await _cartService.UpdateQuantityItemFromCartAsync(dto, cancellationToken);
             if (result.IsFailed)
-                return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Decrease failed", 400));
-
-            return Ok(ApiResponse.CreateSuccessResponse("Decrease Quantity Successfully"));
+                return BadRequest(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Update failed", 400));
+            return Ok(ApiResponse.CreateSuccessResponse("Quantity updated successfully"));
         }
     }
 }

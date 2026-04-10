@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace FashionShop.Application.Services.ProductServices.DTO
 {
@@ -12,8 +8,7 @@ namespace FashionShop.Application.Services.ProductServices.DTO
         public string Description { get; set; } = string.Empty;
         public decimal BasePrice { get; set; }
         public int StockQuantity { get; set; }
-
-        public string ThumbnailUrl { get; set; } = string.Empty;
+        public IFormFile? ThumbnailFile { get; set; }
         public Guid CategoryId { get; set; }
     }
 }

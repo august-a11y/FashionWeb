@@ -75,18 +75,37 @@ namespace FashionShop.Application.Services.CartServices
             return Result.Ok(true);
         }
 
-        public async Task<Result<bool>> DecreaseQuantityItemFromCartAsync(CartItemUpdateDTO cartItemUpdateDTO, CancellationToken cancellationToken)
+        
+
+        public async Task<Result<bool>> UpdateQuantityItemFromCartAsync(
+            CartItemUpdateDTO cartItemUpdateDTO,
+            CancellationToken cancellationToken)
         {
-            if (cartItemUpdateDTO.Quantity <= 0)
-                return Result.Fail("Quantity must be greater than 0.");
+            if (cartItemUpdateDTO.Quantity == 0)
+                return Result.Fail("Quantity must be different from 0.");
 
             var cartKey = GetCartKey();
-            var success = await _cartCacheRepo.DecreaseItemAsync(
-                cartKey,
-                cartItemUpdateDTO.ProductId,
-                cartItemUpdateDTO.VariantId,
-                cartItemUpdateDTO.Quantity,
-                cancellationToken);
+
+            bool success;
+
+            if (cartItemUpdateDTO.Quantity < 0)
+            {
+                success = await _cartCacheRepo.DecreaseItemAsync(
+                    cartKey,
+                    cartItemUpdateDTO.ProductId,
+                    cartItemUpdateDTO.VariantId,
+                    Math.Abs(cartItemUpdateDTO.Quantity),
+                    cancellationToken);
+            }
+            else
+            {
+                success = await _cartCacheRepo.IncreaseItemAsync(
+                    cartKey,
+                    cartItemUpdateDTO.ProductId,
+                    cartItemUpdateDTO.VariantId,
+                    cartItemUpdateDTO.Quantity,
+                    cancellationToken);
+            }
 
             if (!success)
                 return Result.Fail("Item not found in cart");

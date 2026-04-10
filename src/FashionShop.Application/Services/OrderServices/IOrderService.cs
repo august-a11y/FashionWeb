@@ -1,4 +1,5 @@
 ﻿using FashionShop.Application.Services.OrderServices.DTO;
+using FashionShop.Domain.Entities;
 using FluentResults;
 
 namespace FashionShop.Application.Services.OrderServices
@@ -10,8 +11,8 @@ namespace FashionShop.Application.Services.OrderServices
         Task<Result<List<OrderDTO>>> GetOrdersByUserIdAsync(Guid userId, CancellationToken cancellationToken);
         Task<Result<bool>> CancelOrderAsync(Guid orderId, CancellationToken cancellationToken);
         Task<Result<OrderPreviewDto>> PreviewOderAsync(CreateOrderDTO orderInput, CancellationToken cancellationToken);
-        Task<Result<bool>> UpdateOderStatusAsync(Guid orderId, string status, CancellationToken cancellationToken);
-
+        Task<Result<bool>> UpdateOderStatusAsync(Guid orderId, OrderStatus status, CancellationToken cancellationToken);
+        Task<Result<List<OrderDTO>>> GetAllOrdersAsync(CancellationToken cancellationToken);
 
     }
 }

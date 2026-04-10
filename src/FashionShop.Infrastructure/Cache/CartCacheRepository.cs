@@ -121,6 +121,20 @@ namespace FashionShop.Infrastructure.Cache
 
             return true;
         }
+        public async Task<bool> IncreaseItemAsync(string cartKey, Guid productId, Guid variantId, int quantity, CancellationToken cancellationToken)
+        {
+            var fieldKey = CartKeyHelper.GetItemFieldKey(productId, variantId);
+            var existingValue = await _redis.HashGetAsync(cartKey, fieldKey);
+            if (!existingValue.HasValue)
+                return false;
+            var item = JsonSerializer.Deserialize<CartItemDTO>(existingValue.ToString());
+            if (item == null)
+                return false;
+            item.Quantity += quantity;
+            var jsonValue = JsonSerializer.Serialize(item);
+            await _redis.HashSetAsync(cartKey, fieldKey, jsonValue);
+            return true;
+        }
 
         public async Task SetCartAsync(string cartKey, CartDTO cart, CancellationToken cancellationToken)
         {
@@ -137,6 +151,24 @@ namespace FashionShop.Infrastructure.Cache
             }
 
             await _redis.KeyExpireAsync(cartKey, TimeSpan.FromDays(30));
+        }
+
+        public async Task RemoveListItemAsync(string cartKey, IEnumerable<(Guid ProductId, Guid VariantId)> items, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(cartKey) || items == null)
+                return;
+
+            var fieldKeys = items
+                .Select(i => (RedisValue)CartKeyHelper.GetItemFieldKey(i.ProductId, i.VariantId))
+                .Distinct()
+                .ToArray();
+
+            if (fieldKeys.Length > 0)
+            {
+                await _redis.HashDeleteAsync(cartKey, fieldKeys);
+            }
         }
     }
 }

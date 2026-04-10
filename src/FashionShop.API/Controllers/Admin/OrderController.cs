@@ -42,6 +42,14 @@ namespace FashionShop.API.Controllers.Admin
 
             return Ok(ApiResponse<List<OrderDTO>>.CreateSuccessResponse(result.Value, "Order successfully processed."));
         }
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<List<OrderDTO>>>> GetAllOrders(CancellationToken cancellationToken)
+        {
+            var result = await _orderService.GetAllOrdersAsync(cancellationToken);
+            if (result.IsFailed)
+                return NotFound(ApiResponse.CreateFailureResponse(result.Errors.FirstOrDefault()?.Message ?? "Orders not found.", 404));
+            return Ok(ApiResponse<List<OrderDTO>>.CreateSuccessResponse(result.Value, "Orders successfully processed."));
+        }
 
         [HttpPatch("{id:guid}/status")]
         public async Task<ActionResult<ApiResponse>> UpdateOrderStatus(
@@ -52,10 +60,10 @@ namespace FashionShop.API.Controllers.Admin
             if (id == Guid.Empty)
                 return BadRequest(ApiResponse.CreateFailureResponse("Invalid order id.", 400));
 
-            if (string.IsNullOrWhiteSpace(request.Status))
+            if (!request.Status.HasValue)
                 return BadRequest(ApiResponse.CreateFailureResponse("Status is required.", 400));
 
-            var result = await _orderService.UpdateOderStatusAsync(id, request.Status.Trim(), cancellationToken);
+            var result = await _orderService.UpdateOderStatusAsync(id, request.Status.Value, cancellationToken);
             if (result.IsFailed)
             {
                 var message = result.Errors.FirstOrDefault()?.Message ?? "Update status failed.";
@@ -105,14 +113,14 @@ namespace FashionShop.API.Controllers.Admin
             return (from, to) switch
             {
                 ("Cancelled", "Delivered") => "A cancelled order cannot be marked as delivered.",
-                ("Cancelled", "Shipped") => "A cancelled order cannot be marked as shipped.",
+                ("Cancelled", "Shipping") => "A cancelled order cannot be marked as Shipping.",
                 ("Cancelled", "Processing") => "A cancelled order cannot be moved back to processing.",
                 ("Delivered", "Cancelled") => "A delivered order cannot be cancelled.",
                 ("Delivered", "Processing") => "A delivered order cannot be moved back to processing.",
-                ("Delivered", "Shipped") => "A delivered order cannot be moved back to shipped.",
+                ("Delivered", "Shipping") => "A delivered order cannot be moved back to Shipping.",
                 ("Pending", "Delivered") => "A pending order cannot be moved directly to delivered.",
-                ("Pending", "Shipped") => "A pending order cannot be moved directly to shipped.",
-                ("Processing", "Delivered") => "A processing order must be shipped before delivery.",
+                ("Pending", "Shipping") => "A pending order cannot be moved directly to Shipping.",
+                ("Processing", "Delivered") => "A processing order must be Shipping before delivery.",
                 _ => $"Cannot transition order status from '{from}' to '{to}'."
             };
         }

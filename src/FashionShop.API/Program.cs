@@ -13,6 +13,7 @@ using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
 using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Text.Json.Serialization;
 
 
 internal class Program
@@ -55,35 +56,29 @@ internal class Program
 
         var key = Encoding.UTF8.GetBytes(jwtKey);
 
-        // Config Redis
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
             ConnectionMultiplexer.Connect(redisConnectionString));
 
-        // Config CORS
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("CorsPolicy", policy =>
             {
-                policy.WithOrigins("http://localhost:4200")
+                policy.WithOrigins("https://localhost:4200")
                       .AllowAnyHeader()
-                      .AllowAnyMethod();
+                      .AllowAnyMethod()
+                      .AllowCredentials();
             });
         });
 
-        // Config DbContext with SQL Server
         builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(connectionString,
-
-                b => {
-                    b.MigrationsAssembly("FashionShop.Infrastructure");
-                    b.UseCompatibilityLevel(120);
-                });
-
+            options.UseSqlServer(connectionString, b =>
+            {
+                b.MigrationsAssembly("FashionShop.Infrastructure");
+                b.UseCompatibilityLevel(120);
+            });
         });
 
-
-        // Configure Identity
         builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
@@ -135,7 +130,11 @@ internal class Program
             options.AddPolicy("Custommer", policy => policy.RequireRole("Custommer"));
         });
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructureServices();
 
@@ -154,19 +153,18 @@ internal class Program
 
         var contentTypeProvider = new FileExtensionContentTypeProvider();
         var imgPath = Path.Combine(app.Environment.ContentRootPath, "img");
-        if (Directory.Exists(imgPath))
+        Directory.CreateDirectory(imgPath);
+
+        app.UseStaticFiles(new StaticFileOptions
         {
-            app.UseStaticFiles(new StaticFileOptions
+            FileProvider = new PhysicalFileProvider(imgPath),
+            RequestPath = "/img",
+            ContentTypeProvider = contentTypeProvider,
+            OnPrepareResponse = ctx =>
             {
-                FileProvider = new PhysicalFileProvider(imgPath),
-                RequestPath = "/img",
-                ContentTypeProvider = contentTypeProvider,
-                OnPrepareResponse = ctx =>
-                {
-                    ctx.Context.Response.Headers["Access-Control-Allow-Origin"] = "http://localhost:4200";
-                }
-            });
-        }
+                ctx.Context.Response.Headers["Access-Control-Allow-Origin"] = "https://localhost:4200";
+            }
+        });
 
         app.UseMiddleware<SessionMiddleware>();
         app.UseMiddleware<JwtContextMiddleware>();
@@ -178,7 +176,6 @@ internal class Program
 
         app.MapControllers();
 
-        // Seeding default data + migration
         app.MigrationDatabase();
 
         app.Run();
