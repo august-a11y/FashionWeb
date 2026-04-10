@@ -1,0 +1,342 @@
+<main class="lv-page">
+  <section class="lv-shell">
+    <header class="lv-topbar">
+      <div class="lv-brand">LVShop</div>
+
+      <div class="lv-actions" aria-label="Header actions">
+        <button type="button" aria-label="Search">&#128269;</button>
+        <button type="button" aria-label="Profile" (click)="onProfileClick()">&#128100;</button>
+        <button type="button" aria-label="Cart" class="cart-action" (click)="openCartPanel()">
+          &#128722;
+          @if (cartTotalItems > 0) {
+            <span class="cart-badge">{{ cartBadgeLabel }}</span>
+          }
+        </button>
+      </div>
+    </header>
+
+    <section class="lv-hero" [style.--hero-bg-image]="getHeroBackgroundImage()">
+      <div class="lv-hero-copy">
+        <p class="kicker">Bo suu tap he moi</p>
+        @if (heroProduct) {
+          <h1>{{ heroProduct.name }}</h1>
+          <p>{{ heroProduct.description }}</p>
+          <button type="button" [disabled]="isAddingToCart(heroProduct.id)" (click)="onAddToCart(heroProduct)">
+            {{ isAddingToCart(heroProduct.id) ? 'Dang them...' : ('Mua ngay - ' + toPriceLabel(heroProduct.price)) }}
+          </button>
+        } @else {
+          <h1>Phong cach ven bien cho phai manh</h1>
+          <p>Kham pha bo suu tap thoi trang nam moi nhat tu LVShop.</p>
+          <button type="button" disabled>Dang tai...</button>
+        }
+      </div>
+    </section>
+
+    <section class="lv-block">
+      <div class="lv-block-head">
+        <h2>Danh muc pho bien</h2>
+      </div>
+
+      <div class="category-filters" aria-label="Category filters">
+        <div class="category-menu" (mouseenter)="cancelCloseCategoryMenu()" (mouseleave)="scheduleCloseCategoryMenu()">
+          <button type="button" class="category-pill" (click)="openCategoryMenu('ao')">{{ getParentMenuLabel('ao') }}</button>
+          <div class="category-submenu" [class.open]="activeCategoryMenu === 'ao'" (mouseenter)="cancelCloseCategoryMenu()" (mouseleave)="scheduleCloseCategoryMenu()">
+            @if (isLoadingMenuCategories && activeCategoryMenu === 'ao') {
+              <p class="submenu-state">Dang tai...</p>
+            } @else if (menuCategories.ao.length === 0) {
+              <p class="submenu-state">Khong co danh muc Ao.</p>
+            } @else {
+              @for (category of menuCategories.ao; track category.id) {
+                <button type="button" (click)="selectMenuCategory(category.id)">{{ category.name }}</button>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="category-menu" (mouseenter)="cancelCloseCategoryMenu()" (mouseleave)="scheduleCloseCategoryMenu()">
+          <button type="button" class="category-pill" (click)="openCategoryMenu('quan')">{{ getParentMenuLabel('quan') }}</button>
+          <div class="category-submenu" [class.open]="activeCategoryMenu === 'quan'" (mouseenter)="cancelCloseCategoryMenu()" (mouseleave)="scheduleCloseCategoryMenu()">
+            @if (isLoadingMenuCategories && activeCategoryMenu === 'quan') {
+              <p class="submenu-state">Dang tai...</p>
+            } @else if (menuCategories.quan.length === 0) {
+              <p class="submenu-state">Khong co danh muc Quan.</p>
+            } @else {
+              @for (category of menuCategories.quan; track category.id) {
+                <button type="button" (click)="selectMenuCategory(category.id)">{{ category.name }}</button>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    @if (hasChosenCategory) {
+      <section class="lv-block" #categoryProductsTop>
+        <div class="lv-block-head">
+          <h2>San pham theo danh muc</h2>
+        </div>
+
+        @if (isLoadingCategoryProducts) {
+          <div class="lv-products loading-grid">
+            @for (_ of [1, 2, 3, 4]; track $index) {
+              <article class="skeleton-card"></article>
+            }
+          </div>
+        } @else if (categoryProducts.length === 0) {
+          <div class="empty-state">Khong tim thay san pham cho danh muc da chon.</div>
+        } @else {
+          <div class="lv-products">
+            @for (product of categoryProducts; track trackProduct($index, product)) {
+              <article class="product-card product-dynamic" [style.background-image]="productBackground(product, $index)">
+                <h3>{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+                <p class="price">{{ toPriceLabel(product.price) }}</p>
+                <button type="button" [disabled]="isAddingToCart(product.id)" (click)="onAddToCart(product)">
+                  {{ isAddingToCart(product.id) ? 'Dang them...' : 'Them vao gio' }}
+                </button>
+              </article>
+            }
+          </div>
+
+          @if (hasCategoryPagination) {
+            <div class="category-pagination">
+              @for (page of categoryPageNumbers; track page) {
+                <button
+                  type="button"
+                  [class.active]="page === categoryPageIndex"
+                  [disabled]="page === categoryPageIndex"
+                  (click)="goToCategoryPage(page)">
+                  {{ page }}
+                </button>
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+
+    <section class="lv-block">
+      <h2>San pham noi bat</h2>
+      @if (isLoadingFeaturedProducts) {
+        <div class="lv-products loading-grid">
+          @for (_ of [1, 2, 3, 4]; track $index) {
+            <article class="skeleton-card"></article>
+          }
+        </div>
+      } @else if (featuredProducts.length === 0) {
+        <div class="empty-state">Khong tim thay san pham noi bat.</div>
+      } @else {
+        <div class="lv-products">
+          @for (product of featuredProducts; track trackProduct($index, product)) {
+            <article class="product-card product-dynamic" [style.background-image]="productBackground(product, $index)">
+              <h3>{{ product.name }}</h3>
+              <p class="product-description">{{ product.description }}</p>
+              <p class="price">{{ toPriceLabel(product.price) }}</p>
+              <button type="button" [disabled]="isAddingToCart(product.id)" (click)="onAddToCart(product)">
+                {{ isAddingToCart(product.id) ? 'Dang them...' : 'Them vao gio' }}
+              </button>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    @if (isVariantPickerOpen) {
+      <div class="variant-picker-overlay" (click)="closeVariantPicker()">
+        <div class="variant-picker-panel" (click)="$event.stopPropagation()">
+          <div class="variant-picker-head">
+            <h3 class="variant-picker-title">Chon bien the</h3>
+            <button type="button" class="variant-picker-close" (click)="closeVariantPicker()">Dong</button>
+          </div>
+
+          @if (selectedProductForCart) {
+            <p class="variant-picker-product">{{ selectedProductForCart.name }}</p>
+          }
+
+          @if (isLoadingVariants) {
+            <p class="variant-picker-state">Dang tai bien the...</p>
+          } @else if (variantOptions.length === 0) {
+            <p class="variant-picker-state">San pham nay chua co bien the.</p>
+          } @else {
+            <div class="variant-picker-list">
+              @for (variant of variantOptions; track trackVariant($index, variant)) {
+                <button
+                  type="button"
+                  class="variant-picker-item"
+                  [disabled]="variant.stockQuantity <= 0 || isAddingVariant(variant.id)"
+                  (click)="selectVariantForCart(variant)">
+                  <span class="variant-picker-meta">Mau: {{ variant.color }} | Size: {{ variant.size }}</span>
+                  <span class="variant-picker-price">{{ isAddingVariant(variant.id) ? 'Dang them...' : toPriceLabel(variant.price) }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (isCartPanelOpen) {
+      <div class="cart-panel-overlay" (click)="closeCartPanel()">
+        <div class="cart-panel" (click)="$event.stopPropagation()">
+          <div class="cart-panel-head">
+            <h3 class="cart-panel-title">Gio hang cua ban</h3>
+            <button type="button" class="cart-panel-close" (click)="closeCartPanel()">Dong</button>
+          </div>
+
+          @if (cartPanelNotice) {
+            <p class="cart-panel-notice" [class.success]="cartPanelNoticeType === 'success'" [class.error]="cartPanelNoticeType === 'error'">
+              {{ cartPanelNotice }}
+            </p>
+          }
+
+          @if (isLoadingCart) {
+            <p class="cart-panel-state">Dang tai gio hang...</p>
+          } @else if (cartItems.length === 0) {
+            <p class="cart-panel-state">Gio hang dang trong.</p>
+          } @else {
+            @if (!isCheckoutFormOpen) {
+              <div class="cart-panel-list">
+                @for (item of cartItems; track trackCartItem($index, item)) {
+                  <div class="cart-panel-item">
+                    <div class="cart-panel-item-main">
+                      <strong>{{ item.productName }}</strong>
+                      <span>Mau: {{ item.color }} | Size: {{ item.size }}</span>
+                    </div>
+                    <div class="cart-panel-item-controls">
+                      <button
+                        type="button"
+                        class="qty-btn-decrease"
+                        [disabled]="isLoadingCart || item.quantity <= 1"
+                        (click)="decreaseQuantity(item)"
+                        title="Giam so luong">
+                        −
+                      </button>
+                      <span class="qty-display">{{ item.quantity }}</span>
+                      <button
+                        type="button"
+                        class="qty-btn-increase"
+                        [disabled]="isLoadingCart"
+                        (click)="increaseQuantity(item)"
+                        title="Tang so luong">
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        class="qty-btn-delete"
+                        [disabled]="isLoadingCart"
+                        (click)="deleteFromCart(item)"
+                        title="Xoa san pham">
+                        ✕
+                      </button>
+                    </div>
+                    <div class="cart-panel-item-price">{{ toPriceLabel(item.lineTotal) }}</div>
+                  </div>
+                }
+              </div>
+
+              <div class="cart-panel-footer">
+                <span>Tong so luong: {{ cartTotalItems }}</span>
+                <strong>Tong tien: {{ toPriceLabel(cartTotalPrice) }}</strong>
+              </div>
+
+              <button
+                type="button"
+                class="cart-panel-checkout"
+                [disabled]="isPlacingOrder || isLoadingCart || cartItems.length === 0"
+                (click)="beginCheckout()">
+                Thanh toan
+              </button>
+            } @else {
+              <div class="checkout-collapsed-summary">
+                <span>{{ cartTotalItems }} san pham</span>
+                <strong>{{ toPriceLabel(cartTotalPrice) }}</strong>
+              </div>
+
+              <div class="checkout-form">
+                <label>
+                  Ho ten
+                  <input type="text" name="checkoutFullName" [(ngModel)]="checkoutForm.fullName" placeholder="Nguyen Van A" />
+                </label>
+
+                <label>
+                  So dien thoai
+                  <input type="tel" name="checkoutPhone" [(ngModel)]="checkoutForm.phoneNumber" placeholder="0900000000" />
+                </label>
+
+                <label>
+                  Số Nhà, Tên Đường
+                  <input type="text" name="checkoutStreetLine" [(ngModel)]="checkoutForm.streetLine" placeholder="So nha, ten duong" />
+                </label>
+
+                <label>
+                  Phường/Xã
+                  <input type="text" name="checkoutWard" [(ngModel)]="checkoutForm.ward" placeholder="Phuong/Xa" />
+                </label>
+
+                <label>
+                  Quận/Huyện
+                  <input type="text" name="checkoutDistrict" [(ngModel)]="checkoutForm.district" placeholder="Quan/Huyen" />
+                </label>
+
+                <label>
+                  Tỉnh/Thành Phố
+                  <input type="text" name="checkoutCity" [(ngModel)]="checkoutForm.city" placeholder="Tinh/Thanh pho" />
+                </label>
+
+                <label>
+                  Phuong thuc thanh toan
+                  <select name="checkoutPaymentMethod" [(ngModel)]="checkoutForm.paymentMethod">
+                    @for (option of checkoutPaymentOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label>
+                  Note
+                  <textarea name="checkoutNote" [(ngModel)]="checkoutForm.note" rows="2" placeholder="Ghi chu don hang (tuy chon)"></textarea>
+                </label>
+              </div>
+
+              <div class="checkout-actions">
+                <button type="button" class="cart-panel-back" [disabled]="isPlacingOrder" (click)="cancelCheckout()">
+                  Quay lai gio hang
+                </button>
+
+                <button
+                  type="button"
+                  class="cart-panel-checkout"
+                  [disabled]="isPlacingOrder || isLoadingCart || cartItems.length === 0 || !isCheckoutFormReady"
+                  (click)="submitCheckout()">
+                  {{ isPlacingOrder ? 'Dang tao don...' : 'Xac nhan dat hang' }}
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <footer class="lv-footer">
+      <section class="newsletter">
+        <h3>Dang ky ban tin</h3>
+        <div class="subscribe">
+          <input type="email" placeholder="Nhap email cua ban" />
+          <button type="button" aria-label="Subscribe">&rarr;</button>
+        </div>
+      </section>
+
+      <nav class="footer-links" aria-label="Footer links">
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Size Guide</a>
+        <a href="#">Returns</a>
+      </nav>
+
+      <section class="footer-brand">
+        <h3>LVShop</h3>
+        <p>&copy; 2026 LVShop. All rights reserved.</p>
+      </section>
+    </footer>
+  </section>
+</main>

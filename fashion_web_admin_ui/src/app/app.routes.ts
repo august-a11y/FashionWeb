@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authChildGuard, authGuard, guestOnlyGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -7,12 +8,32 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'login',
+    redirectTo: 'auth/login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'register',
+    redirectTo: 'auth/register',
+    pathMatch: 'full'
+  },
+  {
     path: 'auth',
+    canMatch: [guestOnlyGuard],
     loadChildren: () => import('./views/auth/auth.routes').then(m => m.auth_Routes)
+  },
+  {
+    path: 'main_page',
+    loadComponent: () => import('./views/main_page/main_page.component').then((m) => m.MainPageComponent),
+    data: {
+      title: 'Main Page'
+    }
   },
   {
     path: '',
     loadComponent: () => import('./layout').then(m => m.DefaultLayoutComponent),
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     data: {
       title: 'Home'
     },
@@ -29,8 +50,6 @@ export const routes: Routes = [
         path: 'catalog',
         loadChildren: () => import('./views/catalog/catalog.routes').then((m) => m.catalog_Routes)
       }
-
-
 
     ]
   },

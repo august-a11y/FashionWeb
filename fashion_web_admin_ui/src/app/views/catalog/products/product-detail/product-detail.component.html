@@ -1,1 +1,29 @@
-<p>product-info works!</p>
+<div class="container-lg">
+	<div class="page-wrapper">
+		<!-- Page body -->
+		<div class="page-body">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<div class="card-title">Chi tiet san pham</div>
+					</div>
+					<div class="nav-tabs-custom card-body pt-3 pb-0">
+						<ul class="nav nav-tabs card-header-tabs mb-3" role="tablist">
+							<li class="nav-item" role="presentation">
+								<a href="javascript:void(0)" routerLink="info" routerLinkActive="active" class="nav-link" role="tab">
+									Thong tin
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a href="javascript:void(0)" routerLink="variants" routerLinkActive="active" class="nav-link" role="tab">
+									Bien the
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<router-outlet></router-outlet>
+			</div>
+		</div>
+	</div>
+</div>

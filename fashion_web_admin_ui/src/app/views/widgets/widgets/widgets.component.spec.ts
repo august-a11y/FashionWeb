@@ -10,6 +10,7 @@ import { WidgetsDropdownComponent } from '../widgets-dropdown/widgets-dropdown.c
 import { WidgetsEComponent } from '../widgets-e/widgets-e.component';
 import { WidgetsComponent } from './widgets.component';
 
+
 describe('WidgetsComponent', () => {
   let component: WidgetsComponent;
   let fixture: ComponentFixture<WidgetsComponent>;

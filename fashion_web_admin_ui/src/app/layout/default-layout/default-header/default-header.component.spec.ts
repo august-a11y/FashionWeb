@@ -14,6 +14,7 @@ import {
   SidebarModule
 } from '@coreui/angular';
 import { IconModule, IconSetService } from '@coreui/icons-angular';
+import { MessageService } from 'primeng/api';
 import { iconSubset } from '../../../icons/icon-subset';
 import { DefaultHeaderComponent } from './default-header.component';
 
@@ -25,7 +26,7 @@ describe('DefaultHeaderComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
     imports: [GridModule, HeaderModule, IconModule, NavModule, BadgeModule, AvatarModule, DropdownModule, BreadcrumbModule, SidebarModule, ProgressModule, ButtonGroupModule, ReactiveFormsModule, DefaultHeaderComponent],
-    providers: [IconSetService, provideRouter([])]
+    providers: [IconSetService, provideRouter([]), MessageService]
 })
       .compileComponents();
   });

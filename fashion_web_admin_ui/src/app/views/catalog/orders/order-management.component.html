@@ -1,0 +1,157 @@
+<div class="container-fluid py-3">
+  <div class="row g-3">
+    <div class="col-12 col-xl-7">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="mb-0">Quan li don hang</h5>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="loadOrders(true)" [disabled]="isLoading">
+            {{ isLoading ? 'Dang tai...' : 'Tai lai' }}
+          </button>
+        </div>
+
+        <div class="card-body">
+          <form [formGroup]="filterForm" class="row g-2 align-items-end mb-3" novalidate>
+            <div class="col-12 col-md-6">
+              <label for="orderKeyword" class="form-label mb-1">Tim theo ma don / khach hang</label>
+              <input id="orderKeyword" type="text" class="form-control" formControlName="keyword" placeholder="VD: ORD hoặc Nguyen Van A" />
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label for="orderStatus" class="form-label mb-1">Trang thai</label>
+              <select id="orderStatus" class="form-select" formControlName="status">
+                @for (status of statusOptions; track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-12 col-md-2">
+              <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">Reset</button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>Ma don</th>
+                  <th>Khach hang</th>
+                  <th class="text-end">Tong tien</th>
+                  <th class="text-center">Thanh toan</th>
+                  <th class="text-center">Trang thai</th>
+                  <th class="text-end">Thoi gian</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @if (filteredOrders.length === 0) {
+                  <tr>
+                    <td colspan="6" class="text-center text-body-secondary py-4">Khong co don hang phu hop bo loc hien tai.</td>
+                  </tr>
+                }
+
+                @for (order of filteredOrders; track trackOrder($index, order)) {
+                  <tr
+                    class="order-row"
+                    [class.selected]="selectedOrderKey === order.id"
+                    (click)="selectOrder(order)"
+                    (keydown.enter)="selectOrder(order)"
+                    tabindex="0"
+                  >
+                    <td class="fw-semibold text-nowrap">{{ order.code }}</td>
+                    <td class="text-break">{{ order.customer }}</td>
+                    <td class="text-end text-nowrap">{{ order.total | number:'1.0-0' }} VND</td>
+                    <td class="text-center text-nowrap">{{ order.paymentMethod }}</td>
+                    <td class="text-center text-nowrap">
+                      <span class="badge rounded-pill" [ngClass]="statusBadgeClass(order.status)">{{ order.status }}</span>
+                    </td>
+                    <td class="text-end text-nowrap">{{ order.createdAt | date:'dd/MM HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+      <div class="card h-100 detail-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Chi tiet don hang</h5>
+          @if (selectedOrderDetail) {
+            <span class="small text-body-secondary">{{ selectedOrderDetail.code }}</span>
+          }
+        </div>
+
+        <div class="card-body">
+          @if (!selectedOrderDetail) {
+            <div class="text-body-secondary small">Chon 1 don hang o bang ben trai de xem chi tiet va cap nhat trang thai.</div>
+          } @else {
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <span class="badge rounded-pill" [ngClass]="statusBadgeClass(selectedOrderDetail.statusLabel)">
+                {{ selectedOrderDetail.statusLabel }}
+              </span>
+              <span class="small text-body-secondary">{{ selectedOrderDetail.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+
+            <div class="mb-3">
+              <label for="nextStatus" class="form-label mb-1">Cap nhat trang thai</label>
+              <div class="d-flex gap-2">
+                <select id="nextStatus" class="form-select" [formControl]="detailForm.controls.status">
+                  @for (status of statusOptions.slice(1); track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
+                <button type="button" class="btn btn-primary" (click)="updateOrderStatus()" [disabled]="isUpdatingStatus || isLoadingDetail">
+                  {{ isUpdatingStatus ? 'Dang cap nhat...' : 'Luu' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="detail-grid mb-3">
+              <div><strong>Khach hang:</strong> {{ selectedOrderDetail.customer }}</div>
+              <div><strong>So dien thoai:</strong> {{ selectedOrderDetail.phone }}</div>
+              <div><strong>Dia chi:</strong> {{ selectedOrderDetail.address }}</div>
+              <div><strong>Thanh toan:</strong> {{ selectedOrderDetail.paymentMethodLabel }} ({{ selectedOrderDetail.paymentStatusLabel }})</div>
+              <div><strong>Giao hang:</strong> {{ selectedOrderDetail.shippingStatusLabel }}</div>
+              <div><strong>Hen giao:</strong> {{ selectedOrderDetail.expectedDeliveryDate | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div class="full-row"><strong>Ghi chu:</strong> {{ selectedOrderDetail.note }}</div>
+            </div>
+
+            <div class="table-responsive mb-3">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>San pham</th>
+                    <th>Bien the</th>
+                    <th class="text-end">SL</th>
+                    <th class="text-end">Don gia</th>
+                    <th class="text-end">Thanh tien</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of selectedOrderDetail.items; track $index) {
+                    <tr>
+                      <td class="text-break">{{ item.productName }}</td>
+                      <td class="text-nowrap">{{ item.variant }}</td>
+                      <td class="text-end">{{ item.quantity }}</td>
+                      <td class="text-end text-nowrap">{{ item.unitPrice | number:'1.0-0' }} VND</td>
+                      <td class="text-end text-nowrap">{{ item.lineTotal | number:'1.0-0' }} VND</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="summary-box">
+              <div><span>Tam tinh:</span><strong>{{ selectedOrderDetail.subTotal | number:'1.0-0' }} VND</strong></div>
+              <div><span>Phi giao:</span><strong>{{ selectedOrderDetail.shippingFee | number:'1.0-0' }} VND</strong></div>
+              <div class="grand"><span>Tong cong:</span><strong>{{ selectedOrderDetail.grandTotal | number:'1.0-0' }} VND</strong></div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

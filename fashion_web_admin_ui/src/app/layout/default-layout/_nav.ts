@@ -11,7 +11,7 @@ export const navItems: INavData[] = [
     }
   },
   {
-    name: 'Sản phẩm',
+    name: 'Quản lý',
     url: '/catalog',
     iconComponent: { name: 'cil-puzzle' },
     children: [
@@ -21,8 +21,13 @@ export const navItems: INavData[] = [
         icon: 'nav-icon-bullet'
       },
       {
-        name: 'Tất cả sản phẩm',
+        name: 'Sản phẩm',
         url: '/catalog/products',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Đơn hàng',
+        url: '/catalog/orders',
         icon: 'nav-icon-bullet'
       },
     ]

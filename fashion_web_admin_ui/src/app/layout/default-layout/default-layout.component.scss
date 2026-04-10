@@ -1,4 +1,67 @@
 :host::ng-deep {
+  .sidebar {
+    background:
+      linear-gradient(180deg, rgba(248, 252, 255, 0.98), rgba(239, 248, 252, 0.98)),
+      linear-gradient(135deg, rgba(22, 119, 161, 0.04), rgba(42, 152, 199, 0.02));
+    border-right: 1px solid rgba(184, 222, 239, 0.95);
+    box-shadow: 12px 0 28px rgba(12, 84, 117, 0.08);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #1677a1, #0f5f82);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .sidebar-brand-full,
+  .sidebar-brand-narrow {
+    filter: brightness(0) invert(1);
+  }
+
+  .sidebar-nav {
+    padding: 12px 0;
+  }
+
+  .sidebar-nav .nav-link {
+    margin: 2px 10px;
+    border-radius: 14px;
+    color: #123746;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+
+  .sidebar-nav .nav-link:hover {
+    color: #1677a1;
+    background: rgba(22, 119, 161, 0.08);
+    transform: translateX(1px);
+  }
+
+  .sidebar-nav .nav-link.active,
+  .sidebar-nav .nav-link.router-link-active,
+  .sidebar-nav .nav-link.router-link-exact-active {
+    color: #fff;
+    background: linear-gradient(135deg, #1677a1, #0f5f82);
+    box-shadow: 0 10px 20px rgba(22, 119, 161, 0.22);
+  }
+
+  .sidebar-nav .nav-link.active .nav-icon,
+  .sidebar-nav .nav-link.router-link-active .nav-icon,
+  .sidebar-nav .nav-link.router-link-exact-active .nav-icon {
+    color: #fff;
+  }
+
+  .sidebar-nav .nav-group-toggle::after {
+    border-color: rgba(18, 55, 70, 0.55);
+  }
+
+  .sidebar-nav .nav-link.active .nav-group-toggle::after,
+  .sidebar-nav .nav-link.router-link-active .nav-group-toggle::after,
+  .sidebar-nav .nav-link.router-link-exact-active .nav-group-toggle::after {
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .sidebar-footer-toggle {
+    cursor: pointer;
+  }
+
   .ng-scrollbar {
     --scrollbar-padding: 1px;
     --scrollbar-size: 5px;

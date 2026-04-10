@@ -16,6 +16,10 @@ export const catalog_Routes: Routes = [
     loadComponent: () => import('./catagories/catagories.component').then(m => m.CatagoriesComponent)
   },
   {
+    path: 'orders',
+    loadComponent: () => import('./orders/order-management.component').then(m => m.OrderManagementComponent)
+  },
+  {
     path: 'product/:id',
     loadComponent: () => import('./products/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
 

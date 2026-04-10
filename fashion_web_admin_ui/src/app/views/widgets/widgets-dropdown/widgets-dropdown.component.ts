@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, input, OnInit, viewChild } from '@angular/core';
 import { getStyle } from '@coreui/utils';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { RouterLink } from '@angular/router';
@@ -19,10 +19,21 @@ import {
 @Component({
   selector: 'app-widgets-dropdown',
   templateUrl: './widgets-dropdown.component.html',
+  styleUrls: ['./widgets-dropdown.component.scss'],
   imports: [RowComponent, ColComponent, WidgetStatAComponent, TemplateIdDirective, IconDirective, DropdownComponent, ButtonDirective, DropdownToggleDirective, DropdownMenuDirective, DropdownItemDirective, RouterLink, DropdownDividerDirective, ChartjsComponent]
 })
-export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
-  private changeDetectorRef = inject(ChangeDetectorRef);
+export class WidgetsDropdownComponent implements OnInit, AfterViewInit {
+  private numberFormatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1
+  });
+
+  readonly kpiCards = input<Array<{
+    title: string;
+    value: string;
+    change: string;
+    trend: 'up' | 'down';
+  }>>([]);
 
   data: any[] = [];
   options: any[] = [];
@@ -121,12 +132,13 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   };
 
   ngOnInit(): void {
-    this.setData();
+    // Keep ngOnInit lightweight to avoid expression-changed errors on first check.
   }
 
-  ngAfterContentInit(): void {
-    this.changeDetectorRef.detectChanges();
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.setData();
+    }, 0);
   }
 
   setData() {
@@ -173,6 +185,75 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         }
       }
     }
+  }
+
+  getCard(index: number) {
+    const cards = this.kpiCards();
+    const fallback = [
+      { title: 'Users', value: '26K', change: '-12.4%', trend: 'down' as const },
+      { title: 'Income', value: '$6.200', change: '40.9%', trend: 'up' as const },
+      { title: 'Conversion Rate', value: '2.49', change: '84.7%', trend: 'up' as const },
+      { title: 'Sessions', value: '44K', change: '-23.6%', trend: 'down' as const }
+    ];
+
+    return cards[index] ?? fallback[index];
+  }
+
+  getTrendIcon(index: number) {
+    return this.getCard(index).trend === 'up' ? 'cilArrowTop' : 'cilArrowBottom';
+  }
+
+  getFormattedValue(index: number): string {
+    const card = this.getCard(index);
+    return this.formatKpiValue(card.title, card.value);
+  }
+
+  private formatKpiValue(title: string, value: string): string {
+    if (!value) {
+      return value;
+    }
+
+    const isPercent = value.includes('%');
+    if (isPercent) {
+      return value;
+    }
+
+    const hasVnd = /vnd/i.test(value) || /doanh thu/i.test(title);
+    const numeric = this.parseNumeric(value);
+    if (numeric === null) {
+      return value;
+    }
+
+    const compact = this.toCompactNumber(numeric);
+    return hasVnd ? `${compact} VND` : compact;
+  }
+
+  private parseNumeric(value: string): number | null {
+    const cleaned = value.replace(/[^\d.,-]/g, '');
+    if (!cleaned) {
+      return null;
+    }
+
+    const normalized = cleaned.replace(/,/g, '');
+    const parsed = Number(normalized);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private toCompactNumber(value: number): string {
+    const abs = Math.abs(value);
+    if (abs >= 1_000_000_000) {
+      return `${this.numberFormatter.format(value / 1_000_000_000)}B`;
+    }
+
+    if (abs >= 1_000_000) {
+      return `${this.numberFormatter.format(value / 1_000_000)}M`;
+    }
+
+    if (abs >= 1_000) {
+      return `${this.numberFormatter.format(value / 1_000)}K`;
+    }
+
+    return this.numberFormatter.format(value);
   }
 }
 

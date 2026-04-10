@@ -1,1 +1,47 @@
-<p>product-info works!</p>
+<div class="card">
+	<div class="card-body">
+		@if (isLoading) {
+			<div class="alert alert-info" role="alert">
+				Dang tai du lieu...
+			</div>
+		} @else if (product) {
+			<div class="row">
+				<div class="col-md-4 mb-3">
+					@if (product.thumbnailUrl) {
+						<img [src]="product.thumbnailUrl" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;" />
+					} @else {
+						<div class="bg-light rounded p-5 text-center text-body-secondary">
+							Khong co hinh anh
+						</div>
+					}
+				</div>
+				<div class="col-md-8">
+					<h4>{{ product.name || 'Product' }}</h4>
+					<p class="text-body-secondary">{{ product.description || 'Khong co mo ta' }}</p>
+					<div class="row mb-3">
+						<div class="col-md-6">
+							<strong>Gia:</strong> {{ product.price | number:'1.0-2' }}
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-md-6">
+							<strong>Thumbnail URL:</strong>
+							@if (product.thumbnailUrl) {
+								<a [href]="product.thumbnailUrl" target="_blank" rel="noopener noreferrer">Xem</a>
+							} @else {
+								<span class="text-body-secondary">-</span>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		} @else {
+			<div class="alert alert-warning" role="alert">
+				San pham khong tim thay
+			</div>
+		}
+	</div>
+	<div class="card-footer">
+		<button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()">Quay lai</button>
+	</div>
+</div>

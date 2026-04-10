@@ -1,1 +1,184 @@
-<p>product-list works!</p>
+<div class="container-fluid py-3">
+	<div class="row g-3">
+		<div class="col-12 col-xl-4">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">{{ isEditMode ? 'Cap nhat san pham' : 'Them san pham' }}</h5>
+					<button type="button" class="btn btn-outline-secondary btn-sm" (click)="startCreate()" [disabled]="isSaving">
+						Moi
+					</button>
+				</div>
+				<div class="card-body">
+					<form [formGroup]="productForm" (ngSubmit)="saveProduct()" novalidate>
+						<div class="mb-3">
+							<label for="productName" class="form-label">Tên sản phẩm</label>
+							<input id="productName" type="text" class="form-control" formControlName="name" />
+						</div>
+
+						<div class="mb-3">
+							<label for="productDescription" class="form-label">Mo ta</label>
+							<textarea id="productDescription" rows="3" class="form-control" formControlName="description"></textarea>
+						</div>
+
+						<div class="mb-3">
+							<label for="productPrice" class="form-label">Gia</label>
+							<input id="productPrice" type="number" min="0" class="form-control" formControlName="price" />
+						</div>
+
+						<div class="mb-3">
+							<label for="productThumbnailFile" class="form-label">Upload hình ảnh</label>
+							<input
+								id="productThumbnailFile"
+								type="file"
+								class="form-control"
+								accept="image/*"
+								(change)="onThumbnailFileChange($event)"
+							/>
+							<div class="form-text">Them moi bat buoc upload anh. Khi cap nhat, de trong se giu nguyen anh cu.</div>
+						</div>
+
+						@if (productThumbnailPreview) {
+							<div class="mb-3">
+								<img [src]="productThumbnailPreview" alt="Preview ảnh sản phẩm" class="thumbnail-preview mb-2" />
+							</div>
+						}
+
+						<div class="mb-3">
+							<label for="productCategory" class="form-label">Danh muc</label>
+							<select id="productCategory" class="form-select" formControlName="categoryId">
+								<option value="">Chon danh muc</option>
+								@for (category of categories; track category.id) {
+									<option [value]="category.id">{{ category.name }}</option>
+								}
+							</select>
+						</div>
+
+						<button type="submit" class="btn btn-primary w-100" [disabled]="!canSubmit">
+							{{ isSaving ? 'Dang luu...' : (isEditMode ? 'Cap nhat' : 'Them moi') }}
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-xl-8">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Danh sach san pham</h5>
+					<button type="button" class="btn btn-outline-primary btn-sm" (click)="loadProducts(true, currentPage)" [disabled]="isLoading">
+						{{ isLoading ? 'Dang tai...' : 'Tai lai' }}
+					</button>
+				</div>
+
+				<div class="card-body">
+					<div class="row g-2 align-items-end mb-3">
+						<div class="col-12 col-md-6 col-lg-5">
+							<label for="productCategoryFilter" class="form-label mb-1">Loc theo danh muc</label>
+							<select
+								id="productCategoryFilter"
+								class="form-select"
+								[value]="selectedCategoryId"
+								(change)="onCategoryChange($any($event.target).value)"
+							>
+								<option value="">Tat ca danh muc</option>
+								@for (category of categories; track category.id) {
+									<option [value]="category.id">{{ category.name }}</option>
+								}
+							</select>
+						</div>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-hover align-middle">
+							<thead>
+								<tr>
+									<th>Hinh anh</th>
+									<th>Ten</th>
+									<th>Gia</th>
+									<th>Danh muc</th>
+									<th>Thumbnail URL</th>
+									<th>Variants</th>
+									<th class="text-end">Hanh dong</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (products.length === 0) {
+									<tr>
+										<td colspan="7" class="text-center text-body-secondary py-4">Khong co du lieu</td>
+									</tr>
+								}
+								@for (product of products; track product.id) {
+									<tr>
+										<td>
+											@if (product.thumbnailUrl) {
+												<img
+													[src]="product.thumbnailUrl"
+													alt="{{ product.name || 'Product image' }}"
+													class="product-thumbnail"
+												/>
+											} @else {
+												<div class="product-thumbnail product-thumbnail-placeholder">-</div>
+											}
+										</td>
+										<td>
+											<div class="fw-semibold">{{ product.name || '-' }}</div>
+											<div class="small text-body-secondary">{{ product.description || 'Khong co mo ta' }}</div>
+										</td>
+										<td>{{ product.price | number:'1.0-2' }}</td>
+										<td>{{ getCategoryName(product.categoryId) }}</td>
+										<td>
+											@if (product.thumbnailUrl) {
+												<a [href]="product.thumbnailUrl" target="_blank" rel="noopener noreferrer">Xem</a>
+											} @else {
+												<span class="text-body-secondary">-</span>
+											}
+										</td>
+										<td>
+											<button type="button" class="btn btn-outline-info btn-sm" (click)="navigateToVariants(product.id)">Quan ly</button>
+										</td>
+										<td class="text-end">
+											<div class="btn-group btn-group-sm" role="group">
+												<button type="button" class="btn btn-outline-warning" (click)="startEdit(product)">Sua</button>
+												<button type="button" class="btn btn-outline-danger" (click)="deleteProduct(product)" [disabled]="isDeleting">Xoa</button>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+
+					<div class="d-flex justify-content-between align-items-center mt-3">
+						<button type="button" class="btn btn-outline-secondary btn-sm" (click)="goToPage(currentPage - 1)" [disabled]="!hasPreviousPage || isLoading">
+							Trang truoc
+						</button>
+						<div class="small text-body-secondary text-center">
+							<div>Trang {{ currentPage }} / {{ totalPages }}</div>
+							<div class="d-flex align-items-center justify-content-center gap-1 mt-1 flex-wrap">
+								@for (item of visiblePageItems; track $index) {
+									@if (item === '...') {
+										<span class="px-2 text-body-secondary">...</span>
+									} @else {
+										<button
+											type="button"
+											class="btn btn-sm"
+											[class.btn-primary]="item === currentPage"
+											[class.btn-outline-secondary]="item !== currentPage"
+											(click)="goToPage($any(item))"
+											[disabled]="isLoading || item === currentPage"
+										>
+											{{ item }}
+										</button>
+									}
+								}
+							</div>
+						</div>
+						<button type="button" class="btn btn-outline-secondary btn-sm" (click)="goToPage(currentPage + 1)" [disabled]="!hasNextPage || isLoading">
+							Trang sau
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

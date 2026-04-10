@@ -1,41 +1,150 @@
-<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
-  <c-container>
-    <c-row class="justify-content-center">
-      <c-col lg="7" md="9" xl="6">
-        <c-card class="mx-4">
-          <c-card-body class="p-4">
-            <form cForm>
-              <h1>Register</h1>
-              <p class="text-body-secondary">Create your account</p>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>
-                  <svg cIcon name="cilUser"></svg>
-                </span>
-                <input autoComplete="name" cFormControl placeholder="Username" />
-              </c-input-group>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>&#64;</span>
-                <input autoComplete="email" cFormControl placeholder="Email" />
-              </c-input-group>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>
-                  <svg cIcon name="cilLockLocked"></svg>
-                </span>
-                <input autoComplete="new-password" cFormControl placeholder="Password" type="password" />
-              </c-input-group>
-              <c-input-group class="mb-4">
-                <span cInputGroupText>
-                  <svg cIcon name="cilLockLocked"></svg>
-                </span>
-                <input autoComplete="new-password" cFormControl placeholder="Repeat password" type="password" />
-              </c-input-group>
-              <div class="d-grid">
-                <button cButton color="success">Create Account</button>
-              </div>
-            </form>
-          </c-card-body>
-        </c-card>
-      </c-col>
-    </c-row>
-  </c-container>
+<div class="auth-page auth-page--register">
+  <div class="auth-shell">
+    <section class="auth-hero">
+      <div class="auth-brand">LVShop</div>
+      <p class="auth-kicker">New member</p>
+      <h1>MỞ KHÓA ĐẶC QUYỀN THÀNH VIÊN</h1>
+      <p class="auth-copy">Trở thành một phần của LVSHOP để mua sắm thông minh hơn và nhận ngay những ưu đãi dành riêng cho bạn.</p>
+
+      <div class="auth-benefits">
+        <article class="auth-benefit">
+          <span class="auth-benefit-icon auth-benefit-icon--basket" aria-hidden="true">
+            <svg cIcon name="cilBasket"></svg>
+          </span>
+          <div>
+            <h3>NHẬN ƯU ĐÃI ĐỘC QUYỀN</h3>
+            <p>Mã giảm giá cho thành viên mới.</p>
+          </div>
+        </article>
+
+        <article class="auth-benefit">
+          <span class="auth-benefit-icon auth-benefit-icon--box" aria-hidden="true">
+            <svg cIcon name="cilInbox"></svg>
+          </span>
+          <div>
+            <h3>THEO DÕI ĐƠN HÀNG DỄ DÀNG</h3>
+            <p>Xem trạng thái đơn hàng mọi lúc.</p>
+          </div>
+        </article>
+
+        <article class="auth-benefit">
+          <span class="auth-benefit-icon auth-benefit-icon--pin" aria-hidden="true">
+            <svg cIcon name="cilLocationPin"></svg>
+          </span>
+          <div>
+            <h3>LƯU THÔNG TIN GIAO HÀNG</h3>
+            <p>Thanh toán nhanh chóng hơn.</p>
+          </div>
+        </article>
+
+        <article class="auth-benefit">
+          <span class="auth-benefit-icon auth-benefit-icon--heart" aria-hidden="true">♥</span>
+          <div>
+            <h3>TẠO DANH SÁCH YÊU THÍCH</h3>
+            <p>Lưu lại các sản phẩm bạn yêu thích.</p>
+          </div>
+        </article>
+      </div>
+
+      <a routerLink="/auth/login" class="auth-hero-link">Da co tai khoan? Dang nhap</a>
+    </section>
+
+    <section class="auth-card auth-card--register">
+      <div class="auth-card-head">
+        <p class="auth-kicker">Dang ky</p>
+        <h2>Create your account</h2>
+      </div>
+
+      <form cForm [formGroup]="registerForm" (ngSubmit)="register()" class="auth-form auth-form--register">
+        <label class="auth-field">
+          <span>Username</span>
+          <c-input-group>
+            <span cInputGroupText>
+              <svg cIcon name="cilUser"></svg>
+            </span>
+            <input autoComplete="username" formControlName="username" cFormControl placeholder="Username" />
+          </c-input-group>
+        </label>
+        <div *ngIf="(usernameControl.touched || submitted) && usernameControl.invalid" class="text-danger small auth-error">
+          Username is required.
+        </div>
+
+        <label class="auth-field">
+          <span>Email</span>
+          <c-input-group>
+            <span cInputGroupText>&#64;</span>
+            <input autoComplete="email" formControlName="email" cFormControl placeholder="Email" />
+          </c-input-group>
+        </label>
+        <div *ngIf="(emailControl.touched || submitted) && emailControl.invalid" class="text-danger small auth-error">
+          Valid email is required.
+        </div>
+
+        <div class="auth-grid-2">
+          <label class="auth-field">
+            <span>First name</span>
+            <c-input-group>
+              <span cInputGroupText>
+                <svg cIcon name="cilUser"></svg>
+              </span>
+              <input autoComplete="given-name" formControlName="firstName" cFormControl placeholder="First name" />
+            </c-input-group>
+          </label>
+
+          <label class="auth-field">
+            <span>Last name</span>
+            <c-input-group>
+              <span cInputGroupText>
+                <svg cIcon name="cilUser"></svg>
+              </span>
+              <input autoComplete="family-name" formControlName="lastName" cFormControl placeholder="Last name" />
+            </c-input-group>
+          </label>
+        </div>
+
+        <label class="auth-field">
+          <span>Phone number</span>
+          <c-input-group>
+            <span cInputGroupText>
+              <svg cIcon name="cilPhone"></svg>
+            </span>
+            <input autoComplete="tel" formControlName="phoneNumber" cFormControl placeholder="Phone number (optional)" />
+          </c-input-group>
+        </label>
+
+        <label class="auth-field">
+          <span>Password</span>
+          <c-input-group>
+            <span cInputGroupText>
+              <svg cIcon name="cilLockLocked"></svg>
+            </span>
+            <input autoComplete="new-password" formControlName="password" cFormControl placeholder="Password" type="password" />
+          </c-input-group>
+        </label>
+        <div *ngIf="(passwordControl.touched || submitted) && passwordControl.invalid" class="text-danger small auth-error">
+          Password is required and must have at least 6 characters.
+        </div>
+
+        <label class="auth-field">
+          <span>Repeat password</span>
+          <c-input-group>
+            <span cInputGroupText>
+              <svg cIcon name="cilLockLocked"></svg>
+            </span>
+            <input autoComplete="new-password" formControlName="confirmPassword" cFormControl placeholder="Repeat password" type="password" />
+          </c-input-group>
+        </label>
+        <div *ngIf="isPasswordMismatch" class="text-danger small auth-error">
+          Password and repeat password do not match.
+        </div>
+
+        <div class="auth-actions">
+          <button cButton color="success" type="submit" [disabled]="registerForm.invalid || isPasswordMismatch || isSubmitting">
+            {{ isSubmitting ? 'Creating account...' : 'Create Account' }}
+          </button>
+          <a routerLink="/auth/login" class="auth-hero-link auth-hero-link--secondary">Back to login</a>
+        </div>
+      </form>
+    </section>
+  </div>
 </div>

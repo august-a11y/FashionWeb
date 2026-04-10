@@ -2,12 +2,13 @@
   <c-col sm="6" xl="3">
     <c-widget-stat-a
       color="primary"
-      [title]="'Users'"
+      class="dashboard-kpi dashboard-kpi--revenue"
+      [title]="getCard(0).title"
     >
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        26K
-        <span class="fw-normal" style="font-size: 12px;">
-          (-12.4% <svg cIcon name="cilArrowBottom" size="sm"></svg>)
+            {{ getFormattedValue(0) }}
+        <span class="fw-normal widget-change-text">
+          ({{ getCard(0).change }} <svg cIcon [name]="getTrendIcon(0)" size="sm"></svg>)
         </span>
       </ng-template>
       <ng-template cTemplateId="widgetActionTemplate">
@@ -35,13 +36,14 @@
   </c-col>
   <c-col sm="6" xl="3">
     <c-widget-stat-a
-      [title]="'Income'"
+      [title]="getCard(1).title"
       color="info"
+      class="dashboard-kpi dashboard-kpi--orders"
     >
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>$6.200</span>
-        <span class="fw-normal" style="font-size: 12px;">
-          (40.9%<svg cIcon name="cilArrowTop" size="sm"></svg>)
+            <span>{{ getFormattedValue(1) }}</span>
+        <span class="fw-normal widget-change-text">
+          ({{ getCard(1).change }} <svg cIcon [name]="getTrendIcon(1)" size="sm"></svg>)
         </span>
       </ng-template>
       <ng-template cTemplateId="widgetActionTemplate">
@@ -64,13 +66,14 @@
   </c-col>
   <c-col sm="6" xl="3">
     <c-widget-stat-a
-      [title]="'Conversion Rate'"
-      color="warning"
+      [title]="getCard(2).title"
+      color="primary"
+      class="dashboard-kpi dashboard-kpi--customers"
     >
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>2.49</span>
-        <span class="fw-normal" style="font-size: 12px;">
-          (84.7% <svg cIcon name="cilArrowTop" size="sm"></svg>)
+            <span>{{ getFormattedValue(2) }}</span>
+        <span class="fw-normal widget-change-text">
+          ({{ getCard(2).change }} <svg cIcon [name]="getTrendIcon(2)" size="sm"></svg>)
         </span>
       </ng-template>
       <ng-template cTemplateId="widgetActionTemplate">
@@ -93,13 +96,14 @@
   </c-col>
   <c-col sm="6" xl="3">
     <c-widget-stat-a
-      [title]="'Sessions'"
-      color="danger"
+      [title]="getCard(3).title"
+      color="info"
+      class="dashboard-kpi dashboard-kpi--conversion"
     >
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
-        <span>44K</span>
-        <span class="fw-normal" style="font-size: 12px;">
-          (-23.6% <svg cIcon name="cilArrowBottom" size="sm"></svg>)
+            <span>{{ getFormattedValue(3) }}</span>
+        <span class="fw-normal widget-change-text">
+          ({{ getCard(3).change }} <svg cIcon [name]="getTrendIcon(3)" size="sm"></svg>)
         </span>
       </ng-template>
       <ng-template cTemplateId="widgetActionTemplate">

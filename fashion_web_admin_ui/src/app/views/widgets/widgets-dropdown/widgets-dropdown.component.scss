@@ -1,0 +1,23 @@
+:host {
+  display: block;
+
+  c-widget-stat-a.dashboard-kpi {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 14px 30px rgba(12, 84, 117, 0.08);
+    border: 1px solid rgba(184, 222, 239, 0.95);
+  }
+
+  c-widget-stat-a.dashboard-kpi::part(card) {
+    background: linear-gradient(135deg, #1677a1, #0f5f82);
+  }
+
+  c-widget-stat-a.dashboard-kpi--orders::part(card),
+  c-widget-stat-a.dashboard-kpi--conversion::part(card) {
+    background: linear-gradient(135deg, #2a98c7, #1677a1);
+  }
+
+  .widget-change-text {
+    font-size: 12px;
+  }
+}

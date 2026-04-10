@@ -3,15 +3,21 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { delay, filter, map, tap } from 'rxjs/operators';
-
 import { ColorModeService } from '@coreui/angular';
 import { IconSetService } from '@coreui/icons-angular';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 import { iconSubset } from './icons/icon-subset';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-root',
-    template: '<router-outlet />',
-    imports: [RouterOutlet]
+    template: `
+        <p-toast />
+        <router-outlet />
+    `,
+    imports: [RouterOutlet, ToastModule, ButtonModule, RippleModule]
 })
 export class AppComponent implements OnInit {
   title = 'CoreUI Angular Admin Template';
@@ -23,6 +29,7 @@ export class AppComponent implements OnInit {
 
   readonly #colorModeService = inject(ColorModeService);
   readonly #iconSetService = inject(IconSetService);
+  readonly #messageService = inject(MessageService);
 
   constructor() {
     this.#titleService.setTitle(this.title);
@@ -53,5 +60,29 @@ export class AppComponent implements OnInit {
         takeUntilDestroyed(this.#destroyRef)
       )
       .subscribe();
+  }
+
+  showSuccess(): void {
+    this.#messageService.add({ severity: 'success', summary: 'Success', detail: 'Message Content' });
+  }
+
+  showInfo(): void {
+    this.#messageService.add({ severity: 'info', summary: 'Info', detail: 'Message Content' });
+  }
+
+  showWarn(): void {
+    this.#messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Message Content' });
+  }
+
+  showError(): void {
+    this.#messageService.add({ severity: 'error', summary: 'Error', detail: 'Message Content' });
+  }
+
+  showSecondary(): void {
+    this.#messageService.add({ severity: 'secondary', summary: 'Secondary', detail: 'Message Content' });
+  }
+
+  showContrast(): void {
+    this.#messageService.add({ severity: 'contrast', summary: 'Contrast', detail: 'Message Content' });
   }
 }

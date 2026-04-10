@@ -2,7 +2,7 @@
 @use "@coreui/coreui/scss/mixins/color-mode" as *;
 
 body {
-  background-color: var(--cui-tertiary-bg);
+  background-color: #f6fbfd;
 }
 
 .wrapper {
@@ -51,6 +51,21 @@ body {
 
 .footer {
   min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+}
+
+.sidebar-nav .nav-link {
+  color: #123746;
+}
+
+.sidebar-nav .nav-link:hover {
+  color: #1677a1;
+}
+
+.sidebar-nav .nav-link.active,
+.sidebar-nav .nav-link.router-link-active,
+.sidebar-nav .nav-link.router-link-exact-active {
+  color: #fff;
+  background: linear-gradient(135deg, #1677a1, #0f5f82);
 }
 
 @include color-mode(dark) {

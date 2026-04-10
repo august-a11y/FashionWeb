@@ -1,1 +1,76 @@
-<p>catagories works!</p>
+<div class="container-fluid py-3">
+	<div class="row g-3">
+		<div class="col-12 col-xl-4">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">{{ isEditMode ? 'Cap nhat danh muc' : 'Them danh muc' }}</h5>
+					<button type="button" class="btn btn-outline-secondary btn-sm" (click)="startCreate()" [disabled]="isSaving">
+						Moi
+					</button>
+				</div>
+				<div class="card-body">
+					<form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" novalidate>
+						<div class="mb-3">
+							<label for="categoryName" class="form-label">Ten danh muc</label>
+							<input id="categoryName" type="text" class="form-control" formControlName="name" />
+						</div>
+
+						<div class="mb-3">
+							<label for="categoryDescription" class="form-label">Mo ta</label>
+							<textarea id="categoryDescription" rows="4" class="form-control" formControlName="description"></textarea>
+						</div>
+
+						<button type="submit" class="btn btn-primary w-100" [disabled]="!canSubmit">
+							{{ isSaving ? 'Dang luu...' : (isEditMode ? 'Cap nhat' : 'Them moi') }}
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12 col-xl-8">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Danh sach danh muc</h5>
+					<button type="button" class="btn btn-outline-primary btn-sm" (click)="loadCategories(true)" [disabled]="isLoading">
+						{{ isLoading ? 'Dang tai...' : 'Tai lai' }}
+					</button>
+				</div>
+
+				<div class="card-body">
+					<div class="table-responsive">
+						<table class="table table-hover align-middle">
+							<thead>
+								<tr>
+									<th>Ten danh muc</th>
+									<th>Mo ta</th>
+									<th class="text-end">Hanh dong</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (categories.length === 0) {
+									<tr>
+										<td colspan="3" class="text-center text-body-secondary py-4">Khong co du lieu</td>
+									</tr>
+								}
+
+								@for (category of categories; track category.id) {
+									<tr>
+										<td class="fw-semibold">{{ category.name || '-' }}</td>
+										<td>{{ category.description || 'Khong co mo ta' }}</td>
+										<td class="text-end">
+											<div class="btn-group btn-group-sm" role="group">
+												<button type="button" class="btn btn-outline-warning" (click)="startEdit(category)">Sua</button>
+												<button type="button" class="btn btn-outline-danger" (click)="deleteCategory(category)" [disabled]="isDeleting">Xoa</button>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

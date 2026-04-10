@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import {
   AvatarComponent,
@@ -23,6 +23,8 @@ import {
 } from '@coreui/angular';
 
 import { IconDirective } from '@coreui/icons-angular';
+import { AlertService } from '../../../shared/services/alert.service';
+import { AuthSessionService } from '../../../shared/services/auth-session.service';
 
 @Component({
   selector: 'app-default-header',
@@ -32,6 +34,9 @@ import { IconDirective } from '@coreui/icons-angular';
 export class DefaultHeaderComponent extends HeaderComponent {
 
   readonly #colorModeService = inject(ColorModeService);
+  readonly #router = inject(Router);
+  readonly #alertService = inject(AlertService);
+  readonly #authSessionService = inject(AuthSessionService);
   readonly colorMode = this.#colorModeService.colorMode;
 
   readonly colorModes = [
@@ -125,5 +130,12 @@ export class DefaultHeaderComponent extends HeaderComponent {
     { id: 3, title: 'Add new layouts', value: 75, color: 'info' },
     { id: 4, title: 'Angular Version', value: 100, color: 'success' }
   ];
+
+  logout(event: Event): void {
+    event.preventDefault();
+    this.#authSessionService.clearSession();
+    this.#alertService.info('Logged out successfully');
+    void this.#router.navigate(['/auth/login']);
+  }
 
 }

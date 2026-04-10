@@ -3,7 +3,8 @@ import { WidgetsBrandComponent } from '../widgets-brand/widgets-brand.component'
 import { IconDirective } from '@coreui/icons-angular';
 import { WidgetsEComponent } from '../widgets-e/widgets-e.component';
 import { WidgetsDropdownComponent } from '../widgets-dropdown/widgets-dropdown.component';
-import { DocsComponentsComponent, DocsExampleComponent } from '@docs-components/public-api';
+import { DocsComponentsComponent, DocsExampleComponent } from '../../../../components';
+
 import {
   CardBodyComponent,
   CardComponent,
@@ -22,10 +23,10 @@ import {
   selector: 'app-widgets',
   templateUrl: './widgets.component.html',
   changeDetection: ChangeDetectionStrategy.Default,
-  imports: [CardComponent, CardHeaderComponent, CardBodyComponent, DocsExampleComponent, WidgetsDropdownComponent, RowComponent, ColComponent, WidgetStatBComponent, ProgressComponent, WidgetsEComponent, WidgetStatFComponent, TemplateIdDirective, IconDirective, WidgetsBrandComponent, CardGroupComponent, WidgetStatCComponent, DocsComponentsComponent]
+  imports: [CardComponent, CardHeaderComponent, CardBodyComponent, WidgetsDropdownComponent, RowComponent, ColComponent, WidgetStatBComponent, ProgressComponent, WidgetsEComponent, WidgetStatFComponent, TemplateIdDirective, IconDirective, WidgetsBrandComponent, CardGroupComponent, WidgetStatCComponent, DocsComponentsComponent, DocsExampleComponent]
 })
 export class WidgetsComponent implements AfterContentInit {
-  private changeDetectorRef = inject(ChangeDetectorRef);
+  private changeDetectorRef = inject(ChangeDetectorRef)
 
   ngAfterContentInit(): void {
     this.changeDetectorRef.detectChanges();
