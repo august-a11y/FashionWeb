@@ -12,6 +12,11 @@ permissions:
 
 env:
   IMAGE_NAME: vyle1008/fashionweb-api
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+  RABBITMQ_USERNAME: ${{ secrets.RABBITMQ_USERNAME }}
+  RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
 
 concurrency:
   group: ci-${{ github.ref }}
