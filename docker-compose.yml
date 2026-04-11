@@ -11,6 +11,7 @@ services:
       Jwt__Key: "${JWT_SECRET_KEY}"
       Jwt__Issuer: "http://localhost:7239"
       Jwt__Audience: "http://localhost:7239"
+      Jwt__ExpireMinutes: 120
       RabbitMq__Host: "localhost"
       RabbitMq__Username: "${RABBITMQ_USERNAME}"
       RabbitMq__Password: "${RABBITMQ_PASSWORD}"
