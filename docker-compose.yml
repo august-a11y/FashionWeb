@@ -6,9 +6,9 @@ services:
       - "7239:7239"
     environment:
       ASPNETCORE_URLS: "http://+:7239"
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FashionWebDb;User Id=sa;Password=${SA_PASSWORD:-YourStrong!Passw0rd};TrustServerCertificate=True;Encrypt=False"
-      ConnectionStrings__Redis: "redis:6379"
-      Jwt__Key: "3A534045-9B39-435C-91E1-008B117B3CA4"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=FashionWebDb;User Id=sa;Password=${{ secrets.DB_PASSWORD }};TrustServerCertificate=True;Encrypt=False"
+      ConnectionStrings__Redis: "redis:6379, password = ${{ secrets.REDIS_PASSWORD }}"
+      Jwt__Key: "${{ secrets.JWT_SECRET_KEY }}"
       Jwt__Issuer: "http://localhost:7239"
       Jwt__Audience: "http://localhost:7239"
     depends_on:
@@ -22,7 +22,7 @@ services:
     container_name: fashionshop-sql
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${SA_PASSWORD:-YourStrong!Passw0rd}"
+      MSSQL_SA_PASSWORD: "${{ secrets.DB_PASSWORD}}"
     ports:
       - "1433:1433"
     volumes:
@@ -41,12 +41,11 @@ services:
   redis:
     image: redis:7-alpine
     container_name: fashionshop-redis
-    ports:
-      - "6379:6379"
+    command: redis-server --requirepass ${{ secrets.REDIS_PASSWORD }
     volumes:
       - redis_data:/data
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 20
