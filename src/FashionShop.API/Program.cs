@@ -5,14 +5,15 @@ using FashionShop.Domain.Identity;
 using FashionShop.Infrastructure;
 using FashionShop.Infrastructure.ConfigOptions;
 using FashionShop.Infrastructure.Persistence;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
-using Microsoft.AspNetCore.StaticFiles;
 using System.Text.Json.Serialization;
 
 
@@ -53,11 +54,25 @@ internal class Program
         {
             throw new InvalidOperationException("Missing configuration 'Jwt:Audience'.");
         }
-
+        var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq");
+        var localhostRabbitMqHost = rabbitMqSettings["Host"];
+        var localhostRabbitMqUsername = rabbitMqSettings["Username"];
+        var localhostRabbitMqPassword = rabbitMqSettings["Password"];
         var key = Encoding.UTF8.GetBytes(jwtKey);
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
             ConnectionMultiplexer.Connect(redisConnectionString));
+        builder.Services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(localhostRabbitMqHost, "/", h =>
+                {
+                    h.Username(localhostRabbitMqUsername); 
+                    h.Password(localhostRabbitMqPassword);
+                });
+            });
+        });
 
         builder.Services.AddCors(options =>
         {
