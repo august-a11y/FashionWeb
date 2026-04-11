@@ -35,29 +35,31 @@ internal class Program
             throw new InvalidOperationException("Missing configuration 'ConnectionStrings:Redis'.");
         }
 
-        var jwtSettings = builder.Configuration.GetSection("Jwt");
-
-        var jwtKey = jwtSettings["Key"];
+        
+        
+        var jwtKey = builder.Configuration["Jwt:Key"];
+        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+        var jwtAudience = builder.Configuration["Jwt:Audience"];
         if (string.IsNullOrWhiteSpace(jwtKey))
         {
             throw new InvalidOperationException("Missing configuration 'Jwt:Key'. Set it in appsettings or environment variable 'Jwt__Key'.");
         }
 
-        var jwtIssuer = jwtSettings["Issuer"];
+
         if (string.IsNullOrWhiteSpace(jwtIssuer))
         {
             throw new InvalidOperationException("Missing configuration 'Jwt:Issuer'.");
         }
 
-        var jwtAudience = jwtSettings["Audience"];
+
         if (string.IsNullOrWhiteSpace(jwtAudience))
         {
             throw new InvalidOperationException("Missing configuration 'Jwt:Audience'.");
         }
-        var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq");
-        var localhostRabbitMqHost = rabbitMqSettings["Host"];
-        var localhostRabbitMqUsername = rabbitMqSettings["Username"];
-        var localhostRabbitMqPassword = rabbitMqSettings["Password"];
+
+        var localhostRabbitMqHost = builder.Configuration["RabbitMq:Host"];
+        var localhostRabbitMqUsername = builder.Configuration["RabbitMq:Username"];
+        var localhostRabbitMqPassword = builder.Configuration["RabbitMq:Password"];
         var key = Encoding.UTF8.GetBytes(jwtKey);
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
