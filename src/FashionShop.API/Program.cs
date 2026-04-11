@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.Management;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -35,8 +36,8 @@ internal class Program
             throw new InvalidOperationException("Missing configuration 'ConnectionStrings:Redis'.");
         }
 
-        
-        
+
+
         var jwtKey = builder.Configuration["Jwt:Key"];
         var jwtIssuer = builder.Configuration["Jwt:Issuer"];
         var jwtAudience = builder.Configuration["Jwt:Audience"];
@@ -56,6 +57,7 @@ internal class Program
         {
             throw new InvalidOperationException("Missing configuration 'Jwt:Audience'.");
         }
+        
 
         var localhostRabbitMqHost = builder.Configuration["RabbitMq:Host"];
         var localhostRabbitMqUsername = builder.Configuration["RabbitMq:Username"];
@@ -139,7 +141,7 @@ internal class Program
             };
         });
 
-        builder.Services.Configure<JwtTokenSettings>(jwtSettings);
+        builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("Jwt"));
 
         builder.Services.AddAuthorization(options =>
         {
