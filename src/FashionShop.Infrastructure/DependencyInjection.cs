@@ -1,15 +1,17 @@
 ﻿using FashionShop.Application.Common.Interfaces;
 using FashionShop.Application.Interfaces;
+using FashionShop.Application.Services;
+using FashionShop.Application.Services.AuthServices;
+using FashionShop.Application.Services.DashboardServices;
 using FashionShop.Infrastructure.Cache;
 using FashionShop.Infrastructure.Caching;
+using FashionShop.Infrastructure.Identity;
+using FashionShop.Infrastructure.Messaging;
 using FashionShop.Infrastructure.Persistence;
 using FashionShop.Infrastructure.Persistence.Repositories;
 using FashionShop.Infrastructure.Services;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using FashionShop.Infrastructure.Identity;
-using FashionShop.Application.Services.AuthServices;
-using FashionShop.Application.Services.DashboardServices;
-using FashionShop.Application.Services;
 
 namespace FashionShop.Infrastructure
 {
@@ -25,6 +27,9 @@ namespace FashionShop.Infrastructure
             services.AddScoped<IPhotoService, LocalPhotoService>();
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IDashboardReadRepository, DashboardReadRepository>();
+            services.AddScoped<IEmailService, SendGridEmailService>();
+            services.AddScoped<IMessagePublisher, MassTransitPublisher>();
+
 
             // Repositories
             services.AddScoped<ICartItemRepository, CartItemRepository>();

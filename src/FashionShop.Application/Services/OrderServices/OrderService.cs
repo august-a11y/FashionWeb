@@ -1,10 +1,11 @@
-﻿using FashionShop.Application.Services.AddressServices.DTO;
-using FashionShop.Application.Common.Interfaces;
+﻿using FashionShop.Application.Common.Interfaces;
+using FashionShop.Application.Events;
 using FashionShop.Application.Interfaces;
+using FashionShop.Application.Services.AddressServices.DTO;
 using FashionShop.Application.Services.OrderServices.DTO;
+using FashionShop.Application.Specifications;
 using FashionShop.Domain.Entities;
 using FluentResults;
-using FashionShop.Application.Specifications;
 
 namespace FashionShop.Application.Services.OrderServices
 {
@@ -15,12 +16,14 @@ namespace FashionShop.Application.Services.OrderServices
         private readonly IVariantRepository _variantRepository;
         private readonly ICartItemRepository _cartItemRepository;
         private readonly IRequestContext _userContext;
+        private readonly IMessagePublisher _messagePublisher;
 
         public OrderService(
             IUnitOfWork unitOfWork,
             IRepository<Order> orderRepository,
             IVariantRepository variantRepository,
             ICartItemRepository cartItemRepository,
+            IMessagePublisher messagePublisher,
             IRequestContext userContext)
         {
             _unitOfWork = unitOfWork;
@@ -28,6 +31,7 @@ namespace FashionShop.Application.Services.OrderServices
             _variantRepository = variantRepository;
             _cartItemRepository = cartItemRepository;
             _userContext = userContext;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<Result<OrderDTO>> CreateOrderAsync(CreateOrderDTO createOrderDto, CancellationToken cancellationToken)
@@ -102,6 +106,7 @@ namespace FashionShop.Application.Services.OrderServices
                 {
                     RecipientName = createOrderDto.ShippingAddress.FullName,
                     RecipientPhone = createOrderDto.ShippingAddress.PhoneNumber,
+                    RecipientEmail = createOrderDto.ShippingAddress.Email,
                     StreetAddress = createOrderDto.ShippingAddress.StreetLine,
                     Ward = createOrderDto.ShippingAddress.Ward,
                     District = createOrderDto.ShippingAddress.District,
@@ -144,6 +149,8 @@ namespace FashionShop.Application.Services.OrderServices
 
             if (createdOrder == null)
                 return Result.Fail<OrderDTO>("Unable to create order.");
+            var orderEvent = new OrderCreatedEvent(order.OrderCode, order.ShippingAddress.RecipientEmail, order.ShippingAddress.RecipientName, order.ShippingAddress.RecipientPhone, order.ShippingAddress.StreetAddress, order.Status.ToString(), order.TotalAmount, order.CreatedAt);
+            await _messagePublisher.PublishAsync(orderEvent);
 
             return Result.Ok(MapOrderToDto(createdOrder));
         }
