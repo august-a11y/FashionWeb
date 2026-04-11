@@ -11,9 +11,10 @@ services:
       Jwt__Key: "${JWT_SECRET_KEY}"
       Jwt__Issuer: "http://localhost:7239"
       Jwt__Audience: "http://localhost:7239"
+      Jwt__ExpireMinutes: 120
       RabbitMq__Host: "localhost"
-      RabbitMq:Username: "${RABBITMQ_USERNAME}"
-      RabbitMq:Password: "${RABBITMQ_PASSWORD}"
+      RabbitMq__Username: "${RABBITMQ_USERNAME}"
+      RabbitMq__Password: "${RABBITMQ_PASSWORD}"
     depends_on:
       sqlserver:
         condition: service_healthy
