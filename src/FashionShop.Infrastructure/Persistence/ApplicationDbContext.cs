@@ -1,7 +1,7 @@
-﻿using FashionShop.Application.Common.Interfaces;
-using FashionShop.Domain.Common;
+﻿using FashionShop.Domain.Common;
 using FashionShop.Domain.Entities;
 using FashionShop.Domain.Identity;
+using FashionShop.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using System.Management;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -59,9 +58,9 @@ internal class Program
         }
         
 
-        var localhostRabbitMqHost = builder.Configuration["RabbitMq:Host"];
-        var localhostRabbitMqUsername = builder.Configuration["RabbitMq:Username"];
-        var localhostRabbitMqPassword = builder.Configuration["RabbitMq:Password"];
+        var localhostRabbitMqHost = builder.Configuration["RabbitMq:Host"] ?? "localhost";
+        var localhostRabbitMqUsername = builder.Configuration["RabbitMq:Username"] ?? "guest";
+        var localhostRabbitMqPassword = builder.Configuration["RabbitMq:Password"] ?? "guest";
         var key = Encoding.UTF8.GetBytes(jwtKey);
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
@@ -72,7 +71,7 @@ internal class Program
             {
                 cfg.Host(localhostRabbitMqHost, "/", h =>
                 {
-                    h.Username(localhostRabbitMqUsername); 
+                    h.Username(localhostRabbitMqUsername);
                     h.Password(localhostRabbitMqPassword);
                 });
             });

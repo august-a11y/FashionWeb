@@ -12,6 +12,6 @@ namespace FashionShop.Domain.Entities
         public string Ward { get; set; } = string.Empty;
         public string District { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
-        public virtual AppUser User { get; set; }
+        public virtual AppUser? User { get; set; }
     }
 }

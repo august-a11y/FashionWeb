@@ -8,7 +8,7 @@ namespace FashionShop.Domain.Entities
         public Guid? UserId { get; set; }
         public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
         public virtual ICollection<CartItem> Items { get; set; } = new List<CartItem>();
-        public virtual AppUser User { get; set; }
+        public virtual AppUser? User { get; set; }
 
         public Cart(Guid? userId)
         {

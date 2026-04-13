@@ -29,10 +29,10 @@ namespace FashionShop.Infrastructure.Persistence
                     .IgnoreQueryFilters()
                     .AnyAsync(o => o.OrderCode == DemoOrderCode, cancellationToken);
 
-            /*if (alreadySeeded)
+            if (alreadySeeded)
             {
                 return;
-            }*/
+            }
 
             var passwordHasher = new PasswordHasher<AppUser>();
 

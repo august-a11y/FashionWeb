@@ -10,6 +10,15 @@
             public const string Delete = "Permissions.Products.Delete";
         }
 
+        public static class Variants
+        {
+            public const string View = "Permissions.Variants.View";
+            public const string Create = "Permissions.Variants.Create";
+            public const string Edit = "Permissions.Variants.Edit";
+            public const string Delete = "Permissions.Variants.Delete";
+        }
+        
+
         public static class Categories
         {
             public const string View = "Permissions.Categories.View";

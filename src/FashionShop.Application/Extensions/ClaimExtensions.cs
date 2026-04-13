@@ -1,12 +1,7 @@
 ﻿using FashionShop.Application.Services.AuthServices.Models;
 using FashionShop.Domain.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FashionShop.Application.Extensions
 {

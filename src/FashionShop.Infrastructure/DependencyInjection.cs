@@ -6,6 +6,7 @@ using FashionShop.Application.Services.DashboardServices;
 using FashionShop.Infrastructure.Cache;
 using FashionShop.Infrastructure.Caching;
 using FashionShop.Infrastructure.Identity;
+using FashionShop.Infrastructure.Interfaces;
 using FashionShop.Infrastructure.Messaging;
 using FashionShop.Infrastructure.Persistence;
 using FashionShop.Infrastructure.Persistence.Repositories;

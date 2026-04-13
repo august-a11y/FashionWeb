@@ -1,7 +1,9 @@
-﻿namespace FashionShop.Application.Interfaces
+﻿using FashionShop.Contracts;
+
+namespace FashionShop.Application.Interfaces
 {
     public interface IEmailService
     {
-        Task SendOrderConfirmationAsync(string email, string name, string orderId);
+        Task SendOrderConfirmationAsync(OrderCreatedEvent orderCreatedEvent);
     }
 }

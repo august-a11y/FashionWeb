@@ -7,19 +7,19 @@ namespace FashionShop.Domain.Entities
 {
     public class Order : BaseEntity
     {
-        public string OrderCode { get; set; }
+        public required string OrderCode { get; set; }
         public Guid? UserId { get; set; }
-        public virtual AppUser User { get; set; } 
+        public virtual AppUser? User { get; set; } 
 
-        public OrderAddressSnapshot ShippingAddress { get; set; } 
+        public required OrderAddressSnapshot ShippingAddress { get; set; } 
         public string PhoneNumber { get; set; } = string.Empty;
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public decimal SubTotal { get; set; }
         public decimal ShippingFee { get; set; }
         public decimal TotalAmount { get; set; }
         public string Note { get; set; } = string.Empty;
-        public virtual Payment Payment { get; set; } 
-        public virtual Shipment Shipment { get; set; } 
+        public virtual Payment? Payment { get; set; } 
+        public virtual Shipment? Shipment { get; set; } 
         public OrderStatus Status { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
@@ -30,9 +30,9 @@ namespace FashionShop.Domain.Entities
         public Guid OrderId { get; set; }
         public Guid ProductId { get; set; }
         public Guid VariantId { get; set; }
-        public string ProductName { get; set; } 
-        public string Color { get; set; }
-        public string Size { get; set; } 
+        public required string ProductName { get; set; } 
+        public required string Color { get; set; }
+        public required string Size { get; set; } 
         public string ThumbnailUrl { get; set; } = string.Empty;
 
         public int Quantity { get; set; }

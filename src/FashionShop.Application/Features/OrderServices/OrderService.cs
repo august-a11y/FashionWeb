@@ -1,9 +1,10 @@
 ﻿using FashionShop.Application.Common.Interfaces;
-using FashionShop.Application.Events;
 using FashionShop.Application.Interfaces;
 using FashionShop.Application.Services.AddressServices.DTO;
+using FashionShop.Application.Services.CartServices.Helper;
 using FashionShop.Application.Services.OrderServices.DTO;
 using FashionShop.Application.Specifications;
+using FashionShop.Contracts;
 using FashionShop.Domain.Entities;
 using FluentResults;
 
@@ -16,6 +17,7 @@ namespace FashionShop.Application.Services.OrderServices
         private readonly IVariantRepository _variantRepository;
         private readonly ICartItemRepository _cartItemRepository;
         private readonly IRequestContext _userContext;
+        private readonly ICartCacheRepository _cacheCartRepository;
         private readonly IMessagePublisher _messagePublisher;
 
         public OrderService(
@@ -24,8 +26,10 @@ namespace FashionShop.Application.Services.OrderServices
             IVariantRepository variantRepository,
             ICartItemRepository cartItemRepository,
             IMessagePublisher messagePublisher,
+            ICartCacheRepository cacheCartRepository,
             IRequestContext userContext)
         {
+            _cacheCartRepository = cacheCartRepository;
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
             _variantRepository = variantRepository;
@@ -46,6 +50,7 @@ namespace FashionShop.Application.Services.OrderServices
                 .Select(x => x.VariantId)
                 .Distinct()
                 .ToList();
+           
 
             var variants = await _variantRepository.GetListByIdsWithProductAsync(variantIds, cancellationToken);
             var variantMap = variants.ToDictionary(v => v.Id);
@@ -142,14 +147,19 @@ namespace FashionShop.Application.Services.OrderServices
                     variantIds,
                     cancellationToken);
                 }
-                
-
+                var cartkey = GetCartKey();
+                var productIds_variantIds = createOrderDto.OrderItems
+                    .Select(oi => (oi.VariantId, oi.ProductId))
+                    .ToList();
+                await _cacheCartRepository.RemoveListItemAsync(cartkey, productIds_variantIds,
+                    cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
             }, cancellationToken);
 
             if (createdOrder == null)
                 return Result.Fail<OrderDTO>("Unable to create order.");
-            var orderEvent = new OrderCreatedEvent(order.OrderCode, order.ShippingAddress.RecipientEmail, order.ShippingAddress.RecipientName, order.ShippingAddress.RecipientPhone, order.ShippingAddress.StreetAddress, order.Status.ToString(), order.TotalAmount, order.CreatedAt);
+            string shippingAddress = $"{order.ShippingAddress.StreetAddress}, {order.ShippingAddress.Ward}, {order.ShippingAddress.District}, {order.ShippingAddress.City}";
+            var orderEvent = new OrderCreatedEvent(order.OrderCode, order.ShippingAddress.RecipientEmail, order.ShippingAddress.RecipientName, order.ShippingAddress.RecipientPhone, shippingAddress, order.Status.ToString(), order.TotalAmount, order.CreatedAt);
             await _messagePublisher.PublishAsync(orderEvent);
 
             return Result.Ok(MapOrderToDto(createdOrder));
@@ -325,6 +335,12 @@ namespace FashionShop.Application.Services.OrderServices
                 return Result.Ok(new List<OrderDTO>());
             var orderDtos = order.Select(MapOrderToDto).ToList();
             return Result.Ok(orderDtos);
+        }
+        private string GetCartKey()
+        {
+            return _userContext.UserId != null
+                ? CartKeyHelper.GetCartKey(_userContext.UserId, null)
+                : CartKeyHelper.GetCartKey(null, _userContext.SessionId);
         }
     }
 }

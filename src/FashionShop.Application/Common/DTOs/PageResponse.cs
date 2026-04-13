@@ -1,13 +1,4 @@
-﻿using FashionShop.Domain.Common;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FashionShop.Application.Common.DTOs
+﻿namespace FashionShop.Application.Common.DTOs
 {
     public class PageResponse<T> where T : class
     {
@@ -22,7 +13,9 @@ namespace FashionShop.Application.Common.DTOs
             Total = total;
             this.PageSize = new PageSize(pageSize);
             this.PageIndex = new PageIndex(pageIndex);
-            TotalPages = (int)Math.Ceiling((double)total / (double)PageSize._value);
+           
+           
+            TotalPages = (int)Math.Ceiling((double)total / (double)(PageSize._value ?? 20));
         }
     }
     public class PageSize

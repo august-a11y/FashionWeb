@@ -10,7 +10,7 @@ namespace FashionShop.Domain.Entities
 
         public string ThumbnailUrl { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
-        public virtual Category Category { get; set; }
+        public virtual Category? Category { get; set; }
         public ICollection<Variant> Variants { get; set; } = new List<Variant>();
         
         //public Product(string name, string description, string slug, decimal price, string thumbnailUrl, Guid categoryId)

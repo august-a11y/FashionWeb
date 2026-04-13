@@ -16,13 +16,13 @@ namespace FashionShop.Domain.Identity
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
-        public virtual ICollection<Address> Addresses { get; set; }
-        public virtual Cart Cart { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
-        public virtual  ICollection<IdentityUserRole<Guid>> UserRoles { get; set; }
-        public virtual  ICollection<IdentityUserClaim<Guid>> Claims { get; set; }
-        public virtual  ICollection<IdentityUserLogin<Guid>> Logins { get; set; }
-        public virtual  ICollection<IdentityUserToken<Guid>> Tokens { get; set; }
+        public virtual ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
+        public virtual Cart? Cart { get; set; }
+        public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+        public virtual ICollection<IdentityUserRole<Guid>> UserRoles { get; set; } = new HashSet<IdentityUserRole<Guid>>();
+        public virtual ICollection<IdentityUserClaim<Guid>> Claims { get; set; } = new HashSet<IdentityUserClaim<Guid>>();
+        public virtual ICollection<IdentityUserLogin<Guid>> Logins { get; set; } = new HashSet<IdentityUserLogin<Guid>>();
+        public virtual ICollection<IdentityUserToken<Guid>> Tokens { get; set; } = new HashSet<IdentityUserToken<Guid>>();
 
     }
 }

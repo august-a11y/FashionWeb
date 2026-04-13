@@ -10,7 +10,7 @@ namespace FashionShop.Domain.Identity
         public DateTime? DeletedAt { get; set; }
         
         public bool IsDeleted { get; set; } = false;
-        public virtual ICollection<IdentityUserRole<Guid>> UserRoles { get; set; }
-        public virtual ICollection<IdentityRoleClaim<Guid>> RoleClaims { get; set; }
+        public virtual ICollection<IdentityUserRole<Guid>> UserRoles { get; set; } = new HashSet<IdentityUserRole<Guid>>();
+        public virtual ICollection<IdentityRoleClaim<Guid>> RoleClaims { get; set; } = new HashSet<IdentityRoleClaim<Guid>>();
     }
 }

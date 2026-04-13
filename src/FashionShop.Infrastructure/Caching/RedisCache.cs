@@ -1,12 +1,6 @@
 ﻿using FashionShop.Application.Common.Interfaces;
-using Google.Apis.Storage.v1.Data;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace FashionShop.Infrastructure.Caching
 {
@@ -31,7 +25,7 @@ namespace FashionShop.Infrastructure.Caching
 
             if (value.IsNullOrEmpty) return default;
 
-            return JsonSerializer.Deserialize<T>(value!, _jsonOptions);
+            return JsonSerializer.Deserialize<T>((string)value!, _jsonOptions);
         }
 
         public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
